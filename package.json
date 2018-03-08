@@ -1,0 +1,17 @@
+{
+  "name": "jussitb",
+  "version": "1.0.0",
+  "description": "CLI VTEX utils",
+  "main": "jussitb.js",
+  "author": "Gfpaiva",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.2",
+    "cli-color": "^1.2.0",
+    "commander": "^2.14.1",
+    "inquirer": "^5.1.0",
+    "qs": "^6.5.1"
+  }
+}
