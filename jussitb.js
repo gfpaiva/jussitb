@@ -1,51 +1,12 @@
 'use strict';
 
 const program = require('commander');
-const { prompt } = require('inquirer');
-const { readFileSync, readFile, readdirSync } = require('fs');
+const Actions = require('./actions');
+const message = require('./utils/cli-colors');
 
-const VtexId = require('./vtexid');
-const VtexCMS = require('./vtexcms');
-const VTEXID = new VtexId();
+const ACTIONS = new Actions();
 
-let account = null;
-let email = null
-
-const authAction = cmd => {
-	const questions = [];
-	email = cmd.email ? cmd.email : null;
-	account = cmd.account ? cmd.account : null;
-
-	if(!email) questions.push({ type: 'input', name: 'email', message: 'Enter your e-mail' });
-
-	if(!account) questions.push({ type: 'input', name: 'account', message: 'Enter the VTEX account' });
-
-	prompt(questions)
-		.then(answers => {
-			if(!account) account = answers.account;
-			if(!email) email = answers.email;
-
-			VTEXID.setAccount(account);
-
-			return VTEXID.getEmailAccessKey(email);
-		})
-		.then(() => prompt({ type: 'input', name: 'accesskey', message: 'Enter the VTEX Access Key (with 6 digits)' }))
-		.then(( { accesskey } ) => VTEXID.authenticateByEmailKey(email, accesskey))
-		.then(authCookie => {
-			const VTEXCMS = new VtexCMS(account, authCookie);
-
-
-			VTEXCMS.getHTMLTemplates()
-				.then(templateList => VTEXCMS.setHTML(templateList));
-
-			// Promise.all(VTEXCMS.setAssetFile())
-			// 	.then(() => console.log('subiu tudin'));
-
-
-		});
-};
-
-// init program
+// init CLI
 program
 	.version('1.0.0')
 	.description('Jussi CLI for VTEX utils');
@@ -55,12 +16,47 @@ program
 	.description('Auth user to get VTEX-Auth-Cookies')
 	.option('--account <account>', 'Set the VTEX account name')
 	.option('--email <email>', 'Set the email account')
-	.action(authAction);
+	.action(ACTIONS.authAction);
 
 program
 	.command('html')
-	.description('Aueh user and Deploy HTML files in VTEX CMS')
+	.description('Auth user and Deploy HTML Templates files on VTEX CMS')
 	.option('--account <account>', 'Set the VTEX account name')
-	.action();
+	.option('--email <email>', 'Set the email account')
+	.action(ACTIONS.uploadHTMLAction);
+
+program
+	.command('sub')
+	.description('Auth user and Deploy HTML Sub Templates files on VTEX CMS')
+	.option('--account <account>', 'Set the VTEX account name')
+	.option('--email <email>', 'Set the email account')
+	.action(ACTIONS.uploadSubHTMLAction);
+
+program
+	.command('shelf')
+	.description('Auth user and Deploy HTML Shelves files on VTEX CMS')
+	.option('--account <account>', 'Set the VTEX account name')
+	.option('--email <email>', 'Set the email account')
+	.action(ACTIONS.uploadShelfAction);
+
+program
+	.command('assets')
+	.description('Auth user and Deploy CSS and JS files on VTEX Portal')
+	.option('--account <account>', 'Set the VTEX account name')
+	.option('--email <email>', 'Set the email account')
+	.action(ACTIONS.uploadAssetsAction);
+
+program
+	.command('deploy')
+	.description('Auth user and deploy all files (CSS, JS, HTML Templates and HTML SubTemplates) on VTEX')
+	.option('--account <account>', 'Set the VTEX account name')
+	.option('--email <email>', 'Set the email account')
+	.option('--force', 'Force update all files and templates')
+	.action(cmd => {
+		ACTIONS.uploadAssetsAction(cmd)
+				.then(ACTIONS.uploadSubHTMLAction)
+				.then(ACTIONS.uploadHTMLAction);
+	});
+
 
 program.parse(process.argv);

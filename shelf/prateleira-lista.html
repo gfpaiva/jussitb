@@ -1,0 +1,53 @@
+#set($id = $product.Id)
+#set($uri = $product.Uri)
+#set($escapedName = $product.HtmlEscapedName)
+
+<a title="$escapedName" class="highlight" href="$uri">$product.HightLight</a>
+<a class="productImage" title="$escapedName" href="$uri">$product.GetImageTag(30)</a>
+<div class="data">
+    <h3><a title="$escapedName" href="$uri" class="teste">$product.SkuName</a></h3>
+	<div class="discount">$product.DiscountHightLight</div>
+	#if ($product.IsInStock)
+		<p class="price">
+			<a title="$escapedName" href="$uri">
+				#if ($product.HasBestPrice)
+					<span class="oldPrice"><span>De: </span>$product.ListPrice</span>
+				#end
+				<span class="newPrice"><span>Por: </span><em>$product.BestPrice</em></span>
+				<em class="installment">
+					#if ($product.NumbersOfInstallment > 1)
+						ou até ${product.NumbersOfInstallment}X de $product.InstallmentValue
+					#else
+						à vista
+					#end
+				</em>
+			</a>
+		</p>
+	#else
+		<p class="outOfStock">Produto Esgotado</p>
+	#end
+	<p class="quickView">$product.QuickView</p>
+	<p class="category"><a href="$product.CategoryLink">$product.CategoryName</a></p>
+	<p class="brand">$product.BrandLink</p>
+    #if ($product.GiftListWishedAmount > 0)
+        #if ($product.GiftListWishedAmount > 1)
+            <p class="gift-list-wished">$product.GiftListWishedAmount desejados</p>
+        #else
+            <p class="gift-list-wished">$product.GiftListWishedAmount desejado</p>
+        #end
+    #else
+        <p class="gift-list-wished not-wished">nenhum desejado</p>
+    #end
+
+    #if ($product.GiftListPurchasedAmount > 0)
+        #if ($product.GiftListPurchasedAmount > 1)
+            <p class="gift-list-purchased">$product.GiftListPurchasedAmount comprados</p>
+        #else
+            <p class="gift-list-purchased">$product.GiftListPurchasedAmount comprado</p>
+        #end
+    #else
+        <p class="gift-list-purchased not-purchased">nenhum comprado</p>
+    #end
+
+    <p class="gift-list-insert">$product.InsertSku</p>
+</div>

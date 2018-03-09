@@ -1,12 +1,14 @@
 'use strict';
 
 const axios = require('axios');
+const message = require('./utils/cli-colors');
 
 class VtexId {
 	constructor(account = null) {
 		this.account = account;
 		this.uri = `https://${this.account}.vtexcommercestable.com.br/api/vtexid/pub/authentication`;
 		this.token = null;
+		this.authCookie = null;
 		this.endpoints = {
 			getToken: '/start',
 			authenticateByEmailKey: '/accesskey/validate',
@@ -38,12 +40,11 @@ class VtexId {
 				.then(( { data } ) => {
 					if(data && data.authenticationToken) {
 						this.token = data.authenticationToken;
-
 						return data.authenticationToken;
 					}
 				})
 				.catch(err => {
-					console.log(err);
+					message('error', err);
 					throw new Error(err);
 				});
 	};
@@ -66,7 +67,7 @@ class VtexId {
 					}
 				})
 				.catch(err => {
-					console.log(err);
+					message('error', err);
 					throw new Error(err);
 				});
 	};
@@ -81,12 +82,11 @@ class VtexId {
 					}
 				})
 				.then(( { data } ) => {
-					console.log(data.authCookie.Value);
-
+					this.authCookie = data.authCookie.Value;
 					return data.authCookie.Value;
 				})
 				.catch(err => {
-					console.log(err);
+					message('error', err);
 					throw new Error(err);
 				});
 	};

@@ -1,1 +1,1 @@
-console.log('💻💻💻💻 IIIIHIIIII');
+console.log('💻💻💻💻 VIA CLI');
