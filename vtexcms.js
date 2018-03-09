@@ -98,16 +98,17 @@ class VtexCMS {
 
 		return this.AXIOS
 				.post(`${this.endpoints.getHTMLTemplates}?type=${isShelf}&IsSub=${IsSub}`, qs.stringify({
-					type: 'viewTemplate',
+					type: isShelf,
 					IsSub
 				}), {
 					headers: {
 						'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 					}
 				})
-				.then(( { data } ) => {
+				.then((  data  ) => {
+					// console.log(data);
 					this.templates = data.data;
-					return data;
+					return data.data;
 				})
 				.catch(err => {
 					message('error', `Get HTML template error: ${err}`);

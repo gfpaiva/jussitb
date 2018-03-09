@@ -19,6 +19,7 @@ class Actions {
 		this.uploadAssetsAction = this.uploadAssetsAction.bind(this);
 		this.uploadHTMLAction = this.uploadHTMLAction.bind(this);
 		this.uploadSubHTMLAction = this.uploadSubHTMLAction.bind(this);
+		this.uploadShelfAction = this.uploadShelfAction.bind(this);
 	};
 
 	authAction( { email = null, account = null} ) {
@@ -83,7 +84,7 @@ class Actions {
 	uploadSubHTMLAction(cmd) {
 		return this.authAction(cmd)
 			.then(authCookie => {
-				return VTEXCMS.getHTMLTemplates(true, true)
+				return VTEXCMS.getHTMLTemplates(true)
 						.then(templateList => Promise.all(VTEXCMS.setHTML(templateList, true, false, cmd)))
 						.then(responses => {
 							responses.map(( { type, templateName } ) => message(type, `${type === 'success' ? 'Uploaded' : 'Hold' } SubTemplate ${templateName}`))
@@ -95,10 +96,10 @@ class Actions {
 	uploadShelfAction(cmd) {
 		return this.authAction(cmd)
 			.then(authCookie => {
-				return VTEXCMS.getHTMLTemplates(true)
+				return VTEXCMS.getHTMLTemplates(true, true)
 						.then(templateList => Promise.all(VTEXCMS.setHTML(templateList, false, true, cmd)))
 						.then(responses => {
-							responses.map(( { type, templateName } ) => message(type, `${type === 'success' ? 'Uploaded' : 'Hold' } SubTemplate ${templateName}`))
+							responses.map(( { type, templateName } ) => message(type, `${type === 'success' ? 'Uploaded' : 'Hold' } ShelfTemplate ${templateName}`))
 							return cmd;
 						});
 			});
