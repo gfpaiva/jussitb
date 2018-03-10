@@ -17,7 +17,9 @@ class VtexCMS {
 		this.endpoints = {
 			setAsset: `/api/portal/pvt/sites/${site}/files`,
 			setHTMLTemplate: `/admin/a/PortalManagement/SaveTemplate`,
-			getHTMLTemplates: `/admin/a/PortalManagement/GetTemplateList`
+			setShelfTemplate: `/admin/a/PortalManagement/SaveShelfTemplate`,
+			getHTMLTemplates: `/admin/a/PortalManagement/GetTemplateList`,
+			getShelfTemplates: `/admin/a/PortalManagement/ShelfTemplateContent`
 		};
 		this.authCookie =  {
 			name: 'VtexIdclientAutCookie',
@@ -35,8 +37,8 @@ class VtexCMS {
 		this.templates = null;
 		this.defaultBar = total => new ProgressBar('uploading [:bar] :percent - :current/:total', {
 			total,
-			complete: '=',
-			incomplete: ' ',
+			complete: '#',
+			incomplete: '-',
 			width: 20,
 		});
 		this.lockPath = `${__dirname}/jussitb.lock.json`;
@@ -105,13 +107,35 @@ class VtexCMS {
 						'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 					}
 				})
-				.then((  data  ) => {
-					// console.log(data);
-					this.templates = data.data;
-					return data.data;
+				.then(( { data } ) => {
+					this.templates = data;
+					return data;
 				})
 				.catch(err => {
 					message('error', `Get HTML template error: ${err}`);
+					throw new Error(err);
+				});
+	};
+
+	/**
+	 * Get HTML Shelf template by ID on VTEX CMS
+	 * @param  {String} shelfTemplateId UID of Shelf Template
+	 * @returns {Promise} Promise with unique template (in HTML format)
+	 */
+	_getShelfTemplate(shelfTemplateId) {
+		return this.AXIOS
+				.post(`${this.endpoints.getShelfTemplates}?shelfTemplateId=${shelfTemplateId}`, qs.stringify({
+					shelfTemplateId
+				}), {
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+					}
+				})
+				.then(( { data } ) => {
+					return data;
+				})
+				.catch(err => {
+					message('error', `Get Shelf template error: ${err}`);
 					throw new Error(err);
 				});
 	};
@@ -157,52 +181,66 @@ class VtexCMS {
 						templateName,
 						template,
 						templateId,
-						isSub,
 						actionForm: 'Update',
-						textConfirm: 'yes'
-					};
+					},
+					reqURI = '';
 
 					if(isShelf) {
+						reqURI = this.endpoints.setShelfTemplate;
+
+						this._getShelfTemplate(templateId)
+							.then(data => {
+								const $ = cheerio.load(data);
+								const templateCssClass = $('input#templateCssClass').val();
+
+								return reqData = {
+										...reqData,
+										templateCssClass,
+										roundCorners: false,
+									};
+							})
+							.then(reqData => {
+								this._saveHTMLRequest(reqURI, reqData)
+									.then(( { data } ) => {
+										this._saveHTMLSuccess(data, templateName, template, bar, lock);
+
+										resolve({
+											templateName,
+											type: 'success'
+										});
+									})
+									.catch(err => {
+										message('error', `Upload Template error ${err}`);
+										reject(err)
+									});
+							})
+							.catch(err => {
+								message('error', ` Get unique shelf error: ${err}`);
+								reject(err);
+							});
+					} else {
 						reqData = {
 							...reqData,
-							roundCorners: false,
-							templateCssClass: 'teste'
+							isSub,
+							textConfirm: 'yes'
 						};
-					}
 
-					this.AXIOS
-						.post(this.endpoints.setHTMLTemplate, qs.stringify(reqData), {
-							headers: {
-								'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-							}
-						})
-						.then(( { data } ) => {
-							if(data.indexOf('originalMessage') >= 0) {
-								const $ = cheerio.load(data);
-								const err = JSON.parse($('applicationexceptionobject').text());
+						reqURI = this.endpoints.setHTMLTemplate;
 
-								message('error', `Error on upload HTML Template (${templateName}): ${err.message}`);
-								reject(err);
-							} else {
-								bar.tick();
-								let newLock = {
-									...lock,
-									[templateName]: {
-										content: md5(template),
-										lastUpdate: new Date()
-									}
-								};
-								jsonfile.writeFileSync(this.lockPath, newLock);
+						this._saveHTMLRequest(reqURI, reqData)
+							.then(( { data } ) => {
+								this._saveHTMLSuccess(data, templateName, template, bar, lock);
+
 								resolve({
 									templateName,
 									type: 'success'
 								});
-							}
-						})
-						.catch(err => {
-							message('error', `Upload Template error ${err}`);
-							reject(err)
-						});
+							})
+							.catch(err => {
+								message('error', `Upload Template error ${err}`);
+								reject(err)
+							});
+					}
 				});
 			});
 		};
@@ -211,6 +249,49 @@ class VtexCMS {
 
 		return uploadPromises;
 	};
+
+	/**
+	 * Request POST HTML Save Templates
+	 * @param  {String} reqURI URI to request
+	 * @param  {String} reqData Data to request
+	 * @returns {Promise}
+	 */
+	_saveHTMLRequest (reqURI, reqData) {
+		return this.AXIOS
+				.post(reqURI, qs.stringify(reqData), {
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+					}
+				});
+	};
+
+	/**
+	 * Actions on save data on HTML Templates
+	 * @param  {String} data HTML Response of the request
+	 * @param  {String} templateName Current template name to feedback
+	 * @param  {String} template Content of template to save in lock
+	 * @param  {Object} bar ProgressBar to upgrade them
+	 * @param  {Object} lock Lock object to update last version
+	 */
+	_saveHTMLSuccess( data, templateName, template, bar, lock ) {
+		if(data.indexOf('originalMessage') >= 0) {
+			const $ = cheerio.load(data);
+			const err = JSON.parse($('applicationexceptionobject').text());
+
+			message('error', `Error on upload HTML Template (${templateName}): ${err.message}`);
+			reject(err);
+		} else {
+			bar.tick();
+			let newLock = {
+				...lock,
+				[templateName]: {
+					content: md5(template),
+					lastUpdate: new Date()
+				}
+			};
+			jsonfile.writeFileSync(this.lockPath, newLock);
+		}
+	}
 }
 
 module.exports = VtexCMS;
