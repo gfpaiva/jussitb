@@ -9,6 +9,8 @@ const md5 = require('md5');
 const jsonfile = require('jsonfile');
 const message = require('./utils/cli-colors');
 
+const PROJECTDIR = process.cwd();
+
 class VtexCMS {
 	constructor(account = null, authCookie, site = 'default') {
 		this.account = account;
@@ -41,7 +43,13 @@ class VtexCMS {
 			incomplete: '-',
 			width: 20,
 		});
-		this.lockPath = `${__dirname}/jussitb.lock.json`;
+		this.localPaths = {
+			lockPath: `${PROJECTDIR}/jussitb.lock.json`,
+			assetsPath: `${PROJECTDIR}/build/files`,
+			shelvesPath: `${PROJECTDIR}/build/shelf`,
+			templatesPath: `${PROJECTDIR}/build/html`,
+			subTemplatesPath: `${PROJECTDIR}/build/html/sub`,
+		};
 	};
 
 	/**
@@ -58,12 +66,12 @@ class VtexCMS {
 	 * @returns {Array} Array of promises
 	 */
 	setAssetFile() {
-		const files = readdirSync(`${__dirname}/files`).filter(file => /\.(css|js)$/gmi.test(file));
+		const files = readdirSync(this.localPaths.assetsPath).filter(file => /\.(css|js)$/gmi.test(file));
 		const bar = this.defaultBar(files.length);
 
 		const genPromises = path => {
 			return new Promise((resolve, reject ) => {
-				readFile(`${__dirname}/files/${path}`, 'utf8', (err, text) => {
+				readFile(`${this.localPaths.assetsPath}/${path}`, 'utf8', (err, text) => {
 					if(err) throw new Error(err);
 
 					this.AXIOS
@@ -76,6 +84,7 @@ class VtexCMS {
 							resolve(path);
 						})
 						.catch(err => {
+							console.log('ERROR', err);
 							message('error', `Upload File error ${err}`)
 							reject(err)
 						});
@@ -149,14 +158,14 @@ class VtexCMS {
 	 * @returns {Array} Array of promises
 	 */
 	setHTML(templateList, isSub = false, isShelf = false, { force }) {
-		const filesDir = isShelf ? `${__dirname}/shelf` : `${__dirname}/html${isSub ? '/sub' : '' }`;
+		const filesDir = isShelf ? this.localPaths.shelvesPath : (isSub ? this.localPaths.subTemplatesPath : this.localPaths.templatesPath);
 		const files = readdirSync(filesDir).filter(file => /\.(html)$/gmi.test(file));
 		const $ = cheerio.load(templateList);
 		const bar = this.defaultBar(files.length);
-		const lock = jsonfile.readFileSync(this.lockPath, { throws: false });
+		const lock = jsonfile.readFileSync(this.localPaths.lockPath, { throws: false });
 		bar.tick(0);
 
-		if(!lock) jsonfile.writeFileSync(this.lockPath, {});
+		if(!lock) jsonfile.writeFileSync(this.localPaths.lockPath, {});
 
 		const genPromises = templateName => {
 			return new Promise((resolve, reject ) => {
@@ -171,7 +180,7 @@ class VtexCMS {
 
 					if( !force && lock && lock[templateName] && lock[templateName].content === md5(template) ) {
 						bar.tick();
-						return resolve({ templateName, type: 'notice' })
+						return resolve({ templateName, type: 'notice' });
 					};
 
 					const currTemplate = $(`.template div:contains("${templateName}")`).next('a').attr('href');
@@ -202,10 +211,11 @@ class VtexCMS {
 							.then(reqData => {
 								this._saveHTMLRequest(reqURI, reqData)
 									.then(( { data } ) => {
-										this._saveHTMLSuccess(data, templateName, template, bar, lock);
+										this._saveHTMLSuccess(data, templateName, bar);
 
 										resolve({
 											templateName,
+											content: md5(template),
 											type: 'success'
 										});
 									})
@@ -229,10 +239,11 @@ class VtexCMS {
 
 						this._saveHTMLRequest(reqURI, reqData)
 							.then(( { data } ) => {
-								this._saveHTMLSuccess(data, templateName, template, bar, lock);
+								this._saveHTMLSuccess(data, templateName, bar);
 
 								resolve({
 									templateName,
+									content: md5(template),
 									type: 'success'
 								});
 							})
@@ -269,11 +280,9 @@ class VtexCMS {
 	 * Actions on save data on HTML Templates
 	 * @param  {String} data HTML Response of the request
 	 * @param  {String} templateName Current template name to feedback
-	 * @param  {String} template Content of template to save in lock
 	 * @param  {Object} bar ProgressBar to upgrade them
-	 * @param  {Object} lock Lock object to update last version
 	 */
-	_saveHTMLSuccess( data, templateName, template, bar, lock ) {
+	_saveHTMLSuccess( data, templateName, bar ) {
 		if(data.indexOf('originalMessage') >= 0) {
 			const $ = cheerio.load(data);
 			const err = JSON.parse($('applicationexceptionobject').text());
@@ -282,14 +291,6 @@ class VtexCMS {
 			reject(err);
 		} else {
 			bar.tick();
-			let newLock = {
-				...lock,
-				[templateName]: {
-					content: md5(template),
-					lastUpdate: new Date()
-				}
-			};
-			jsonfile.writeFileSync(this.lockPath, newLock);
 		}
 	}
 }

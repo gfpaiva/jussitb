@@ -6,12 +6,15 @@
   "author": "Gfpaiva",
   "license": "MIT",
   "private": true,
+  "preferGlobal": true,
+  "bin": {
+    "jussitb": "./jussitb.js"
+  },
   "dependencies": {
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
     "cli-color": "^1.2.0",
     "commander": "^2.14.1",
-    "form-data": "^2.3.2",
     "inquirer": "^5.1.0",
     "jsonfile": "^4.0.0",
     "md5": "^2.2.1",

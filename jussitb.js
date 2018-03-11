@@ -1,10 +1,16 @@
+#!/usr/bin/env node
+
 'use strict';
+
 
 const program = require('commander');
 const Actions = require('./actions');
+const { readFileSync, readdirSync } = require('fs');
+
 const message = require('./utils/cli-colors');
 
 const ACTIONS = new Actions();
+const PROJECTDIR = process.cwd();
 
 // init CLI
 program
@@ -55,7 +61,32 @@ program
 	.action(cmd => {
 		ACTIONS.uploadAssetsAction(cmd)
 				.then(ACTIONS.uploadSubHTMLAction)
-				.then(ACTIONS.uploadHTMLAction);
+				.then(ACTIONS.uploadHTMLAction)
+				.then(ACTIONS.uploadShelfAction);
+	});
+
+program
+	.command('dirname')
+	.action(() => {
+		console.log('DIRNAME: ', __dirname);
+		console.log('FILENAME: ', __filename);
+		console.log('PROCESS: ', process.cwd());
+
+		const isRoot = readFileSync(`${PROJECTDIR}/package.json`);
+
+		try {
+			readdirSync(`${PROJECTDIR}/build`);
+		} catch(err) {
+			message('error', 'Plese run in root of the project after build all files');
+
+			throw new Error(err);
+		}
+
+		if(!isRoot) {
+			message('error', 'Plese run in root of the project after build all files');
+
+			throw new Error(err);
+		}
 	});
 
 
