@@ -1,9 +1,17 @@
 {
   "name": "jussitb",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI VTEX utils",
   "main": "jussitb.js",
-  "author": "Gfpaiva",
+  "author": "Guilherme Paiva <gf.paiva@yahoo.com.br>",
+  "repository": "gfpaiva/jussitb",
+  "homepage": "https://github.com/gfpaiva/jussitb",
+  "keywords": [
+    "jussitb",
+    "jussi",
+    "cli",
+    "deploy"
+  ],
   "license": "MIT",
   "preferGlobal": true,
   "bin": {
