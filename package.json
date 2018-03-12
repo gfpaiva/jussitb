@@ -5,7 +5,6 @@
   "main": "jussitb.js",
   "author": "Gfpaiva",
   "license": "MIT",
-  "private": true,
   "preferGlobal": true,
   "bin": {
     "jussitb": "./jussitb.js"
