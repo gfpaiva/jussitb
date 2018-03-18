@@ -184,6 +184,15 @@ class VtexCMS {
 					};
 
 					const currTemplate = $(`.template div:contains("${templateName}")`).next('a').attr('href');
+
+					try {
+						currTemplate.match(/(templateId=)(.+)$/)[2];
+					} catch(err) {
+						message('error', `Template not found ${templateName}`);
+
+						throw new Error(err);
+					}
+
 					const templateId = currTemplate.match(/(templateId=)(.+)$/)[2];
 
 					let reqData = {
