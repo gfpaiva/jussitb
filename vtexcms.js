@@ -157,7 +157,7 @@ class VtexCMS {
 	 * @param  {Object} cmd object with cmd commander params/options
 	 * @returns {Array} Array of promises
 	 */
-	setHTML(templateList, isSub = false, isShelf = false, { force }) {
+	setHTML(templateList, isSub = false, isShelf = false, { force, account }) {
 		const filesDir = isShelf ? this.localPaths.shelvesPath : (isSub ? this.localPaths.subTemplatesPath : this.localPaths.templatesPath);
 		const files = readdirSync(filesDir).filter(file => /\.(html)$/gmi.test(file));
 		const $ = cheerio.load(templateList);
@@ -178,9 +178,9 @@ class VtexCMS {
 
 					templateName = templateName.substr(0, templateName.lastIndexOf('.html'));
 
-					if( !force && lock && lock[templateName] && lock[templateName].content === md5(template) ) {
+					if( !force && lock && lock[account][templateName] && lock[account][templateName].content === md5(template) ) {
 						bar.tick();
-						return resolve({ templateName, type: 'notice' });
+						return resolve({ templateName, account, type: 'notice' });
 					};
 
 					const currTemplate = $(`.template div:contains("${templateName}")`).next('a').attr('href');
@@ -224,6 +224,7 @@ class VtexCMS {
 
 										resolve({
 											templateName,
+											account,
 											content: md5(template),
 											type: 'success'
 										});
@@ -252,6 +253,7 @@ class VtexCMS {
 
 								resolve({
 									templateName,
+									account,
 									content: md5(template),
 									type: 'success'
 								});

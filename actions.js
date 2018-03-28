@@ -131,7 +131,7 @@ class Actions {
 	};
 
 	_successUpload(responses) {
-		responses.map(( { type, templateName, content } ) => {
+		responses.map(( { type, templateName, content, account } ) => {
 			message(type, `${type === 'success' ? 'Uploaded' : 'Hold' } Template ${templateName}`);
 
 			if(!content) return;
@@ -139,9 +139,12 @@ class Actions {
 			const lock = jsonfile.readFileSync(this.localPaths.lockPath, { throws: false });
 			const newLock = {
 				...lock,
-				[templateName]: {
-					content,
-					lastUpdate: new Date()
+				[account]: {
+					...lock[account],
+					[templateName]: {
+						content,
+						lastUpdate: new Date()
+					}
 				}
 			};
 
