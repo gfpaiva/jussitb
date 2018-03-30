@@ -178,7 +178,7 @@ class VtexCMS {
 
 					templateName = templateName.substr(0, templateName.lastIndexOf('.html'));
 
-					if( !force && lock && lock[account][templateName] && lock[account][templateName].content === md5(template) ) {
+					if( !force && lock && lock[account] && lock[account][templateName] && lock[account][templateName].content === md5(template) ) {
 						bar.tick();
 						return resolve({ templateName, account, type: 'notice' });
 					};
