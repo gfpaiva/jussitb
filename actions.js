@@ -46,7 +46,7 @@ class Actions {
 		}
 	}
 
-	authAction( { email = null, account = null} ) {
+	authAction( { email = null, account = null, site = 'default' } ) {
 		this._checkPath();
 
 		if(VTEXID.authCookie) return Promise.resolve(VTEXID.authCookie);
@@ -77,7 +77,7 @@ class Actions {
 				.then(() => prompt({ type: 'input', name: 'accesskey', message: 'Enter the VTEX Access Key (with 6 digits)' }))
 				.then(( { accesskey } ) => VTEXID.authenticateByEmailKey(this.email, accesskey))
 				.then(authCookie => {
-					VTEXCMS = new VtexCMS(this.account, authCookie);
+					VTEXCMS = new VtexCMS(this.account, authCookie, site);
 
 					return authCookie;
 				});

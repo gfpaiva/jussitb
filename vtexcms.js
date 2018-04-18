@@ -12,7 +12,7 @@ const message = require('./utils/cli-colors');
 const PROJECTDIR = process.cwd();
 
 class VtexCMS {
-	constructor(account = null, authCookie, site = 'default') {
+	constructor(account = null, authCookie, site) {
 		this.account = account;
 		this.authCookie = authCookie;
 		this.uri = `https://${this.account}.vtexcommercestable.com.br`;
@@ -66,6 +66,7 @@ class VtexCMS {
 	 * @returns {Array} Array of promises
 	 */
 	setAssetFile() {
+		console.log('💣💣💣', this.site);
 		const files = readdirSync(this.localPaths.assetsPath).filter(file => /\.(css|js)$/gmi.test(file));
 		const bar = this.defaultBar(files.length);
 

@@ -1,6 +1,6 @@
 {
   "name": "jussitb",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "CLI VTEX utils",
   "main": "jussitb.js",
   "author": "Guilherme Paiva <gf.paiva@yahoo.com.br>",
