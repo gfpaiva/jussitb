@@ -148,7 +148,7 @@ class Actions {
 				}
 			};
 
-			jsonfile.writeFileSync(this.localPaths.lockPath, newLock);
+			jsonfile.writeFileSync(this.localPaths.lockPath, newLock, {spaces: 4});
 		});
 	};
 };

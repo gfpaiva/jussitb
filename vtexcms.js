@@ -66,7 +66,6 @@ class VtexCMS {
 	 * @returns {Array} Array of promises
 	 */
 	setAssetFile() {
-		console.log('💣💣💣', this.site);
 		const files = readdirSync(this.localPaths.assetsPath).filter(file => /\.(css|js)$/gmi.test(file));
 		const bar = this.defaultBar(files.length);
 
