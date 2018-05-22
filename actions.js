@@ -23,6 +23,7 @@ class Actions {
 		// \/ Just to maintain the scope
 		this.authAction = this.authAction.bind(this);
 		this.uploadAssetsAction = this.uploadAssetsAction.bind(this);
+		this.uploadDefaultAssetsAction = this.uploadDefaultAssetsAction.bind(this);
 		this.uploadHTMLAction = this.uploadHTMLAction.bind(this);
 		this.uploadSubHTMLAction = this.uploadSubHTMLAction.bind(this);
 		this.uploadShelfAction = this.uploadShelfAction.bind(this);
@@ -91,6 +92,18 @@ class Actions {
 					files.map(file => message('success', `Uploaded File ${file}`));
 					return cmd;
 				});
+			});
+	};
+
+	uploadDefaultAssetsAction(cmd) {
+		return this.authAction(cmd)
+			.then(authCookie => {
+				return VTEXCMS.getRequestToken()
+					.then(requestToken => Promise.all(VTEXCMS.defaultAssets(requestToken)))
+					.then(files => {
+						files.map(file => message('success', `Uploaded File ${file}`));
+						return cmd;
+					});
 			});
 	};
 

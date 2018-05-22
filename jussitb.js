@@ -14,7 +14,7 @@ const PROJECTDIR = process.cwd();
 
 // init CLI
 program
-	.version('1.0.0')
+	.version('1.1.0')
 	.description('Jussi CLI for VTEX utils');
 
 program
@@ -50,19 +50,37 @@ program
 	.description('Auth user and Deploy CSS and JS files on VTEX Portal')
 	.option('--account <account>', 'Set the VTEX account name')
 	.option('--email <email>', 'Set the email account')
+	.option('--site <site>', 'Set the site for upload on portal ("default" if not provide)')
 	.action(ACTIONS.uploadAssetsAction);
+
+program
+	.command('defaultAssets')
+	.description('Auth user and Deploy CSS and JS files on VTEX CMS')
+	.option('--account <account>', 'Set the VTEX account name')
+	.option('--email <email>', 'Set the email account')
+	.action(ACTIONS.uploadDefaultAssetsAction);
 
 program
 	.command('deploy')
 	.description('Auth user and deploy all files (CSS, JS, HTML Templates and HTML SubTemplates) on VTEX')
 	.option('--account <account>', 'Set the VTEX account name')
 	.option('--email <email>', 'Set the email account')
+	.option('--site <site>', 'Set the site for upload on portal ("default" if not provide)')
+	.option('--pathFiles <path>', 'Set the location to upload assets: "files" or "arquivos"')
 	.option('--force', 'Force update all files and templates')
 	.action(cmd => {
-		ACTIONS.uploadAssetsAction(cmd)
-				.then(ACTIONS.uploadSubHTMLAction)
-				.then(ACTIONS.uploadHTMLAction)
-				.then(ACTIONS.uploadShelfAction);
+		if( cmd && cmd.pathFiles && cmd.pathFiles === 'arquivos' ) {
+			ACTIONS.uploadAssetsAction(cmd)
+					.then(ACTIONS.uploadDefaultAssetsAction)
+					.then(ACTIONS.uploadSubHTMLAction)
+					.then(ACTIONS.uploadHTMLAction)
+					.then(ACTIONS.uploadShelfAction);
+		} else {
+			ACTIONS.uploadAssetsAction(cmd)
+					.then(ACTIONS.uploadSubHTMLAction)
+					.then(ACTIONS.uploadHTMLAction)
+					.then(ACTIONS.uploadShelfAction);
+		}
 	});
 
 program

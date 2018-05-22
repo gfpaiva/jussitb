@@ -1,6 +1,6 @@
 'use strict';
 
-const { readFileSync, readFile, readdirSync } = require('fs');
+const { readFileSync, readFile, readdirSync, createReadStream } = require('fs');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const qs = require('qs');
@@ -8,6 +8,7 @@ const ProgressBar = require('progress');
 const md5 = require('md5');
 const jsonfile = require('jsonfile');
 const message = require('./utils/cli-colors');
+const FormData = require('form-data');
 
 const PROJECTDIR = process.cwd();
 
@@ -16,12 +17,14 @@ class VtexCMS {
 		this.account = account;
 		this.authCookie = authCookie;
 		this.uri = `https://${this.account}.vtexcommercestable.com.br`;
+		this.baseUri = `${this.account}.vtexcommercestable.com.br`;
 		this.endpoints = {
 			setAsset: `/api/portal/pvt/sites/${site}/files`,
 			setHTMLTemplate: `/admin/a/PortalManagement/SaveTemplate`,
 			setShelfTemplate: `/admin/a/PortalManagement/SaveShelfTemplate`,
 			getHTMLTemplates: `/admin/a/PortalManagement/GetTemplateList`,
-			getShelfTemplates: `/admin/a/PortalManagement/ShelfTemplateContent`
+			getShelfTemplates: `/admin/a/PortalManagement/ShelfTemplateContent`,
+			getRequestToken: `/admin/a/PortalManagement/AddFile?fileType=css`
 		};
 		this.authCookie =  {
 			name: 'VtexIdclientAutCookie',
@@ -34,7 +37,7 @@ class VtexCMS {
 				Accept: '*/*',
 				'Cache-Control': 'no-cache',
 			},
-			timeout: 10000
+			timeout: 50000
 		});
 		this.templates = null;
 		this.defaultBar = total => new ProgressBar('uploading [:bar] :percent - :current/:total', {
@@ -46,6 +49,7 @@ class VtexCMS {
 		this.localPaths = {
 			lockPath: `${PROJECTDIR}/jussitb.lock.json`,
 			assetsPath: `${PROJECTDIR}/build/files`,
+			defaultAssetsPath: `${PROJECTDIR}/build/arquivos`,
 			shelvesPath: `${PROJECTDIR}/build/shelf`,
 			templatesPath: `${PROJECTDIR}/build/html`,
 			subTemplatesPath: `${PROJECTDIR}/build/html/sub`,
@@ -54,11 +58,12 @@ class VtexCMS {
 
 	/**
 	 * Set a account name and redefine uri
-	 * @param  {String} account account name
+	 * @param {String} account account name
 	 */
 	setAccount(account) {
 		this.account = account;
-		this.uri = `http://${account}.vtexcommercestable.com.br/api/vtexid/pub/authentication`;
+		this.uri = `http://${account}.vtexcommercestable.com.br`;
+		this.baseUri = `${this.account}.vtexcommercestable.com.br`;
 	};
 
 	/**
@@ -84,12 +89,64 @@ class VtexCMS {
 							resolve(path);
 						})
 						.catch(err => {
-							console.log('ERROR', err);
 							message('error', `Upload File error ${err}`)
 							reject(err)
 						});
 				});
 			});
+		};
+
+		let uploadPromises = files.map(genPromises);
+
+		return uploadPromises;
+	};
+
+	/**
+	 * Save CSS and JS files on "CMS (/arquivos)" on VTEX
+	 * @returns {Array} Array of promises
+	 */
+	defaultAssets(requestToken) {
+		const files = readdirSync(this.localPaths.defaultAssetsPath).filter(file => /\.(css|js)$/gmi.test(file));
+		const bar = this.defaultBar(files.length);
+
+		const genPromises = path => {
+			// return console.log('PATH', `${this.localPaths.defaultAssetsPath}/${path}`, createReadStream(`${this.localPaths.defaultAssetsPath}/${path}`));
+			return new Promise((resolve, reject ) => {
+
+				const host = this.baseUri;
+				const filePath = `${this.localPaths.defaultAssetsPath}/${path}`
+				const form = new FormData();
+
+				form.append('Filename', path);
+				form.append('fileext', '*.jpg;*.png;*.gif;*.jpeg;*.ico;*.js;*.css');
+				form.append('requestToken', requestToken);
+				form.append('folder', '/uploads');
+				form.append('Upload', 'Submit Query');
+				form.append('Filedata', createReadStream(filePath));
+
+				form.submit({
+					host,
+					'path': '/admin/a/FilePicker/UploadFile',
+					'headers': {
+							'Cookie': `${this.authCookie.name}=${this.authCookie.value};`,
+							'Content-Type': form.getHeaders()['content-type']
+						}
+					}, (err, res) => {
+						if (err) {
+							message('error', `Upload File ${filePath} error: ${err}`);
+							reject(err);
+						}
+						if (res.statusCode.toString().substr(0, 1) !== '2') {
+							const errorMessage = `Upload File error ${filePath} (Error: ${statusCode})`;
+
+							message('error', errorMessage);
+							reject(errorMessage);
+						} else {
+							bar.tick();
+							resolve(path);
+						}
+					});
+				});
 		};
 
 		let uploadPromises = files.map(genPromises);
@@ -145,6 +202,30 @@ class VtexCMS {
 				})
 				.catch(err => {
 					message('error', `Get Shelf template error: ${err}`);
+					throw new Error(err);
+				});
+	};
+
+	/**
+	 * Get Request Token on VTEX CMS HTML
+	 * @returns {Promise} Promise with hash contains RequestToken
+	 */
+	getRequestToken() {
+		return this.AXIOS
+				.post(`${this.endpoints.getRequestToken}`)
+				.then(( { data } ) => {
+					const $ = cheerio.load(data);
+					const requestToken = $('#fileUploadRequestToken').val();
+
+					if (!requestToken) {
+						message('error', 'Get RequestToken error');
+						throw new Error('Get RequestToken error');
+					}
+
+					return requestToken;
+				})
+				.catch(err => {
+					message('error', `Get RequestToken error: ${err}`);
 					throw new Error(err);
 				});
 	};
