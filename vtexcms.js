@@ -20,6 +20,7 @@ class VtexCMS {
 		this.baseUri = `${this.account}.vtexcommercestable.com.br`;
 		this.endpoints = {
 			setAsset: `/api/portal/pvt/sites/${site}/files`,
+			setDefaultAsset: `/admin/a/FilePicker/UploadFile`,
 			setHTMLTemplate: `/admin/a/PortalManagement/SaveTemplate`,
 			setShelfTemplate: `/admin/a/PortalManagement/SaveShelfTemplate`,
 			getHTMLTemplates: `/admin/a/PortalManagement/GetTemplateList`,
@@ -113,12 +114,12 @@ class VtexCMS {
 			// return console.log('PATH', `${this.localPaths.defaultAssetsPath}/${path}`, createReadStream(`${this.localPaths.defaultAssetsPath}/${path}`));
 			return new Promise((resolve, reject ) => {
 
-				const host = this.baseUri;
-				const filePath = `${this.localPaths.defaultAssetsPath}/${path}`
+				const host = this.baseUri.replace(/(http:|https:|\/)/g, '');
+				const filePath = `${this.localPaths.defaultAssetsPath}/${path}`;
 				const form = new FormData();
 
 				form.append('Filename', path);
-				form.append('fileext', '*.jpg;*.png;*.gif;*.jpeg;*.ico;*.js;*.css');
+				form.append('fileext', '*.js;*.css');
 				form.append('requestToken', requestToken);
 				form.append('folder', '/uploads');
 				form.append('Upload', 'Submit Query');
@@ -126,18 +127,20 @@ class VtexCMS {
 
 				form.submit({
 					host,
-					'path': '/admin/a/FilePicker/UploadFile',
+					'path': this.endpoints.setDefaultAsset,
 					'headers': {
 							'Cookie': `${this.authCookie.name}=${this.authCookie.value};`,
 							'Content-Type': form.getHeaders()['content-type']
 						}
 					}, (err, res) => {
+
 						if (err) {
 							message('error', `Upload File ${filePath} error: ${err}`);
 							reject(err);
 						}
+
 						if (res.statusCode.toString().substr(0, 1) !== '2') {
-							const errorMessage = `Upload File error ${filePath} (Error: ${statusCode})`;
+							const errorMessage = `Upload File error ${filePath} (Error: ${res.statusCode})`;
 
 							message('error', errorMessage);
 							reject(errorMessage);
