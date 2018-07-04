@@ -125,31 +125,26 @@ class VtexCMS {
 				form.append('Upload', 'Submit Query');
 				form.append('Filedata', createReadStream(filePath));
 
-				form.submit({
-					host,
-					'path': this.endpoints.setDefaultAsset,
-					'headers': {
-							'Cookie': `${this.authCookie.name}=${this.authCookie.value};`,
-							'Content-Type': form.getHeaders()['content-type']
-						}
-					}, (err, res) => {
+				this.AXIOS.post(this.endpoints.setDefaultAsset, form, {
+					headers: {
+						'Content-Type': form.getHeaders()['content-type']
+					}
+				}).then(res => {
+					if( res.data && res.data.mensagem && res.data.mensagem === 'File(s) saved successfully.' ) {
+						bar.tick();
+						resolve(path);
+					} else {
+						const errorMessage = `Upload File error ${filePath} (Error: ${res.status})`;
 
-						if (err) {
-							message('error', `Upload File ${filePath} error: ${err}`);
-							reject(err);
-						}
-
-						if (res.statusCode.toString().substr(0, 1) !== '2') {
-							const errorMessage = `Upload File error ${filePath} (Error: ${res.statusCode})`;
-
-							message('error', errorMessage);
-							reject(errorMessage);
-						} else {
-							bar.tick();
-							resolve(path);
-						}
-					});
+						message('error', errorMessage);
+						reject(errorMessage);
+					}
+				})
+				.catch(err => {
+					message('error', `Upload File ${filePath} error: ${err}`);
+					reject(err);
 				});
+			});
 		};
 
 		let uploadPromises = files.map(genPromises);
