@@ -71,14 +71,24 @@ class VtexCMS {
 	 * Save CSS and JS files on "Portal (/files)" on VTEX
 	 * @returns {Array} Array of promises
 	 */
-	setAssetFile() {
+	setAssetFile({ force, account }) {
 		const files = readdirSync(this.localPaths.assetsPath).filter(file => /\.(css|js)$/gmi.test(file));
 		const bar = this.defaultBar(files.length);
+		const lock = this._lockFile();
+
+		bar.tick(0);
 
 		const genPromises = path => {
 			return new Promise((resolve, reject ) => {
 				readFile(`${this.localPaths.assetsPath}/${path}`, 'utf8', (err, text) => {
 					if(err) throw new Error(err);
+
+					const fileName = _sanitizeFileName(path);
+
+					if( this._checkUpload(text,fileName, force, account, lock) ) {
+						bar.tick();
+						return resolve({ fileName, account, type: 'notice' });
+					};
 
 					this.AXIOS
 						.put(`${this.endpoints.setAsset}/${path}`, {
@@ -87,7 +97,14 @@ class VtexCMS {
 						})
 						.then(( { data } ) => {
 							bar.tick();
-							resolve(path);
+
+							resolve({
+								fileName,
+								account,
+								content: md5(text),
+								type: 'success'
+							});
+							// resolve(path);
 						})
 						.catch(err => {
 							message('error', `Upload File error ${err}`)
@@ -106,44 +123,64 @@ class VtexCMS {
 	 * Save CSS and JS files on "CMS (/arquivos)" on VTEX
 	 * @returns {Array} Array of promises
 	 */
-	defaultAssets(requestToken) {
+	defaultAssets(requestToken, { force, account }) {
 		const files = readdirSync(this.localPaths.defaultAssetsPath).filter(file => /\.(css|js)$/gmi.test(file));
 		const bar = this.defaultBar(files.length);
+		const lock = this._lockFile();
+
+		bar.tick(0);
 
 		const genPromises = path => {
-			// return console.log('PATH', `${this.localPaths.defaultAssetsPath}/${path}`, createReadStream(`${this.localPaths.defaultAssetsPath}/${path}`));
 			return new Promise((resolve, reject ) => {
-
-				const host = this.baseUri.replace(/(http:|https:|\/)/g, '');
+				// const host = this.baseUri.replace(/(http:|https:|\/)/g, '');
 				const filePath = `${this.localPaths.defaultAssetsPath}/${path}`;
-				const form = new FormData();
 
-				form.append('Filename', path);
-				form.append('fileext', '*.js;*.css');
-				form.append('requestToken', requestToken);
-				form.append('folder', '/uploads');
-				form.append('Upload', 'Submit Query');
-				form.append('Filedata', createReadStream(filePath));
+				readFile(filePath, 'utf8', (err, text) => {
+					if(err) throw new Error(err);
 
-				this.AXIOS.post(this.endpoints.setDefaultAsset, form, {
-					headers: {
-						'Content-Type': form.getHeaders()['content-type']
-					}
-				}).then(res => {
-					if( res.data && res.data.mensagem && res.data.mensagem === 'File(s) saved successfully.' ) {
+
+					const form = new FormData();
+					const fileName = _sanitizeFileName(path);
+
+					if( this._checkUpload(text,fileName, force, account, lock) ) {
 						bar.tick();
-						resolve(path);
-					} else {
-						const errorMessage = `Upload File error ${filePath} (Error: ${res.status})`;
+						return resolve({ fileName, account, type: 'notice' });
+					};
 
-						message('error', errorMessage);
-						reject(errorMessage);
-					}
-				})
-				.catch(err => {
-					message('error', `Upload File ${filePath} error: ${err}`);
-					reject(err);
+					form.append('Filename', path);
+					form.append('fileext', '*.js;*.css');
+					form.append('requestToken', requestToken);
+					form.append('folder', '/uploads');
+					form.append('Upload', 'Submit Query');
+					form.append('Filedata', createReadStream(filePath));
+
+					this.AXIOS.post(this.endpoints.setDefaultAsset, form, {
+						headers: {
+							'Content-Type': form.getHeaders()['content-type']
+						}
+					}).then(res => {
+						if( res.data && res.data.mensagem && res.data.mensagem === 'File(s) saved successfully.' ) {
+							bar.tick();
+
+							resolve({
+								fileName,
+								account,
+								content: md5(text),
+								type: 'success'
+							});
+						} else {
+							const errorMessage = `Upload File error ${filePath} (Error: ${res.status})`;
+
+							message('error', errorMessage);
+							reject(errorMessage);
+						}
+					})
+					.catch(err => {
+						message('error', `Upload File ${filePath} error: ${err}`);
+						reject(err);
+					});
 				});
+
 			});
 		};
 
@@ -241,10 +278,9 @@ class VtexCMS {
 		const files = readdirSync(filesDir).filter(file => /\.(html)$/gmi.test(file));
 		const $ = cheerio.load(templateList);
 		const bar = this.defaultBar(files.length);
-		const lock = jsonfile.readFileSync(this.localPaths.lockPath, { throws: false });
-		bar.tick(0);
+		const lock = this._lockFile();
 
-		if(!lock) jsonfile.writeFileSync(this.localPaths.lockPath, {});
+		bar.tick(0);
 
 		const genPromises = templateName => {
 			return new Promise((resolve, reject ) => {
@@ -255,9 +291,9 @@ class VtexCMS {
 						throw new Error(err);
 					}
 
-					templateName = templateName.substr(0, templateName.lastIndexOf('.html'));
+					templateName = _sanitizeFileName(templateName);
 
-					if( !force && lock && lock[account] && lock[account][templateName] && lock[account][templateName].content === md5(template) ) {
+					if( this._checkUpload(template, templateName, force, account, lock) ) {
 						bar.tick();
 						return resolve({ templateName, account, type: 'notice' });
 					};
@@ -352,12 +388,40 @@ class VtexCMS {
 	};
 
 	/**
+	 * Remove extension of template
+	 * @returns {String} File name without extension
+	 */
+	_sanitizeFileName(templateName) {
+		return templateName.replace(/\.html|\.css|\.js/gmi, '');
+	}
+
+	/**
+	 * Read the lock file and return it, If doesn't exist: create a new one
+	 * @returns {Object} lock file parsed in object
+	 */
+	_checklockFile() {
+		const lock = jsonfile.readFileSync(this.localPaths.lockPath, { throws: false });
+
+		if(!lock) jsonfile.writeFileSync(this.localPaths.lockPath, {});
+
+		return lock;
+	};
+
+	/**
+	 * Check if the template has diff on md5 to indicate if able to upload
+	 * @returns {Boolean}
+	 */
+	_checkUpload(template, templateName, force, account, lock) {
+		return ( !force && lock && lock[account] && lock[account][templateName] && lock[account][templateName].content === md5(template) );
+	};
+
+	/**
 	 * Request POST HTML Save Templates
 	 * @param  {String} reqURI URI to request
 	 * @param  {String} reqData Data to request
 	 * @returns {Promise}
 	 */
-	_saveHTMLRequest (reqURI, reqData) {
+	_saveHTMLRequest(reqURI, reqData) {
 		return this.AXIOS
 				.post(reqURI, qs.stringify(reqData), {
 					headers: {
@@ -372,7 +436,7 @@ class VtexCMS {
 	 * @param  {String} templateName Current template name to feedback
 	 * @param  {Object} bar ProgressBar to upgrade them
 	 */
-	_saveHTMLSuccess( data, templateName, bar ) {
+	_saveHTMLSuccess(data, templateName, bar) {
 		if(data.indexOf('originalMessage') >= 0) {
 			const $ = cheerio.load(data);
 			const err = JSON.parse($('applicationexceptionobject').text());

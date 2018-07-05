@@ -87,7 +87,7 @@ class Actions {
 	uploadAssetsAction(cmd) {
 		return this.authAction(cmd)
 			.then(authCookie => {
-				return Promise.all(VTEXCMS.setAssetFile())
+				return Promise.all(VTEXCMS.setAssetFile(cmd))
 				.then(files => {
 					files.map(file => message('success', `Uploaded File ${file}`));
 					return cmd;
@@ -99,7 +99,7 @@ class Actions {
 		return this.authAction(cmd)
 			.then(authCookie => {
 				return VTEXCMS.getRequestToken()
-					.then(requestToken => Promise.all(VTEXCMS.defaultAssets(requestToken)))
+					.then(requestToken => Promise.all(VTEXCMS.defaultAssets(requestToken, cmd)))
 					.then(files => {
 						files.map(file => message('success', `Uploaded File ${file}`));
 						return cmd;
