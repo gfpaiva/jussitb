@@ -69,12 +69,13 @@ class VtexCMS {
 
 	/**
 	 * Save CSS and JS files on "Portal (/files)" on VTEX
+	 * @param  { { force: Boolean, account: String } } cmd object with cmd commander params/options
 	 * @returns {Array} Array of promises
 	 */
 	setAssetFile({ force, account }) {
 		const files = readdirSync(this.localPaths.assetsPath).filter(file => /\.(css|js)$/gmi.test(file));
 		const bar = this.defaultBar(files.length);
-		const lock = this._lockFile();
+		const lock = this._checklockFile();
 
 		bar.tick(0);
 
@@ -83,11 +84,11 @@ class VtexCMS {
 				readFile(`${this.localPaths.assetsPath}/${path}`, 'utf8', (err, text) => {
 					if(err) throw new Error(err);
 
-					const fileName = _sanitizeFileName(path);
+					const templateName = `files/${path}`;
 
-					if( this._checkUpload(text,fileName, force, account, lock) ) {
+					if( this._checkUpload(text, templateName, force, account, lock) ) {
 						bar.tick();
-						return resolve({ fileName, account, type: 'notice' });
+						return resolve({ templateName, account, type: 'notice' });
 					};
 
 					this.AXIOS
@@ -99,8 +100,8 @@ class VtexCMS {
 							bar.tick();
 
 							resolve({
-								fileName,
 								account,
+								templateName,
 								content: md5(text),
 								type: 'success'
 							});
@@ -121,12 +122,14 @@ class VtexCMS {
 
 	/**
 	 * Save CSS and JS files on "CMS (/arquivos)" on VTEX
+	 * @param  {String} requestToken
+	 * @param  { { force: Boolean, account: String } } cmd object with cmd commander params/options
 	 * @returns {Array} Array of promises
 	 */
 	defaultAssets(requestToken, { force, account }) {
 		const files = readdirSync(this.localPaths.defaultAssetsPath).filter(file => /\.(css|js)$/gmi.test(file));
 		const bar = this.defaultBar(files.length);
-		const lock = this._lockFile();
+		const lock = this._checklockFile();
 
 		bar.tick(0);
 
@@ -138,13 +141,12 @@ class VtexCMS {
 				readFile(filePath, 'utf8', (err, text) => {
 					if(err) throw new Error(err);
 
-
 					const form = new FormData();
-					const fileName = _sanitizeFileName(path);
+					const templateName = `arquivos/${path}`;
 
-					if( this._checkUpload(text,fileName, force, account, lock) ) {
+					if( this._checkUpload(text, templateName, force, account, lock) ) {
 						bar.tick();
-						return resolve({ fileName, account, type: 'notice' });
+						return resolve({ templateName, account, type: 'notice' });
 					};
 
 					form.append('Filename', path);
@@ -163,8 +165,8 @@ class VtexCMS {
 							bar.tick();
 
 							resolve({
-								fileName,
 								account,
+								templateName,
 								content: md5(text),
 								type: 'success'
 							});
@@ -270,7 +272,7 @@ class VtexCMS {
 	 * @param  {String} templateList HTML with list of templates returned by getHTMLTemplates method
 	 * @param  {Boolean} isSub specify if want to set a subtemplates
 	 * @param  {Boolean} isShelf specify if want to set a shelf template
-	 * @param  {Object} cmd object with cmd commander params/options
+	 * @param  { { force: Boolean, account: String } } cmd object with cmd commander params/options
 	 * @returns {Array} Array of promises
 	 */
 	setHTML(templateList, isSub = false, isShelf = false, { force, account }) {
@@ -278,7 +280,7 @@ class VtexCMS {
 		const files = readdirSync(filesDir).filter(file => /\.(html)$/gmi.test(file));
 		const $ = cheerio.load(templateList);
 		const bar = this.defaultBar(files.length);
-		const lock = this._lockFile();
+		const lock = this._checklockFile();
 
 		bar.tick(0);
 
@@ -291,7 +293,7 @@ class VtexCMS {
 						throw new Error(err);
 					}
 
-					templateName = _sanitizeFileName(templateName);
+					templateName = this._sanitizeFileName(templateName);
 
 					if( this._checkUpload(template, templateName, force, account, lock) ) {
 						bar.tick();
@@ -389,6 +391,7 @@ class VtexCMS {
 
 	/**
 	 * Remove extension of template
+	 * @param  {String} templateName complete file/template name
 	 * @returns {String} File name without extension
 	 */
 	_sanitizeFileName(templateName) {
@@ -397,7 +400,7 @@ class VtexCMS {
 
 	/**
 	 * Read the lock file and return it, If doesn't exist: create a new one
-	 * @returns {Object} lock file parsed in object
+	 * @returns { {account: { templateName: { content: String } } } } lock file parsed in object
 	 */
 	_checklockFile() {
 		const lock = jsonfile.readFileSync(this.localPaths.lockPath, { throws: false });
@@ -409,6 +412,11 @@ class VtexCMS {
 
 	/**
 	 * Check if the template has diff on md5 to indicate if able to upload
+	 * @param  {String} template content of the file/template
+	 * @param  {String} templateName name of the file/template
+	 * @param  {Boolean} force flag to force or not the upload
+	 * @param  {String} account name of the account
+	 * @param  { {account: { templateName: { content: String } } } } lock object containt de lock file
 	 * @returns {Boolean}
 	 */
 	_checkUpload(template, templateName, force, account, lock) {
@@ -434,7 +442,7 @@ class VtexCMS {
 	 * Actions on save data on HTML Templates
 	 * @param  {String} data HTML Response of the request
 	 * @param  {String} templateName Current template name to feedback
-	 * @param  {Object} bar ProgressBar to upgrade them
+	 * @param  {{tick: Function}} bar ProgressBar to upgrade them
 	 */
 	_saveHTMLSuccess(data, templateName, bar) {
 		if(data.indexOf('originalMessage') >= 0) {

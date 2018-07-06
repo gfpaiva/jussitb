@@ -88,8 +88,9 @@ class Actions {
 		return this.authAction(cmd)
 			.then(authCookie => {
 				return Promise.all(VTEXCMS.setAssetFile(cmd))
-				.then(files => {
-					files.map(file => message('success', `Uploaded File ${file}`));
+				.then(responses => {
+					// responses.map(file => message('success', `Uploaded File ${file}`));
+					this._successUpload(responses);
 					return cmd;
 				});
 			});
@@ -100,8 +101,9 @@ class Actions {
 			.then(authCookie => {
 				return VTEXCMS.getRequestToken()
 					.then(requestToken => Promise.all(VTEXCMS.defaultAssets(requestToken, cmd)))
-					.then(files => {
-						files.map(file => message('success', `Uploaded File ${file}`));
+					.then(responses => {
+						// responses.map(file => message('success', `Uploaded File ${file}`));
+						this._successUpload(responses);
 						return cmd;
 					});
 			});

@@ -2,7 +2,7 @@
 
 'use strict';
 
-
+const pkg = require('./package.json');
 const program = require('commander');
 const Actions = require('./actions');
 const { readFileSync, readdirSync } = require('fs');
@@ -14,7 +14,7 @@ const PROJECTDIR = process.cwd();
 
 // init CLI
 program
-	.version('1.1.0')
+	.version(pkg.version)
 	.description('Jussi CLI for VTEX utils');
 
 program
