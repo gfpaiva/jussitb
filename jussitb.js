@@ -95,6 +95,7 @@ program
 
 	program
 		.command('createPage')
+		.option('--account <account>', 'Set the VTEX project/account name')
 		.description('Create a new Page in project structure')
 		.action(ACTIONS.createPage);
 
