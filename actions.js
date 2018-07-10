@@ -111,6 +111,8 @@ class Actions {
 				.then(() => {
 					if(!account) {
 						fileOverview.push({ type: 'input', name: 'account', message: 'Enter the name of the project/account' });
+					} else {
+						totalCmd.account = account;
 					}
 
 					return prompt(fileOverview)
