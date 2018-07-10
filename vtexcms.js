@@ -234,9 +234,7 @@ class VtexCMS {
 						'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 					}
 				})
-				.then(( { data } ) => {
-					return data;
-				})
+				.then(( { data } ) => data)
 				.catch(err => {
 					message('error', `Get Shelf template error: ${err}`);
 					throw new Error(err);

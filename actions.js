@@ -5,12 +5,16 @@ const { readFileSync, readdirSync } = require('fs');
 const jsonfile = require('jsonfile');
 
 const message = require('./utils/cli-colors');
-const VtexId = require('./vtexid');
-const VtexCMS = require('./vtexcms');
+const VtexId = require('./Vtexid');
+const VtexCMS = require('./Vtexcms');
+const Fs = require('./Fs');
 
 const PROJECTDIR = process.cwd();
 const VTEXID = new VtexId();
+const FS = new Fs();
 let VTEXCMS = null;
+
+let fileOverview = [ { type: 'input', name: 'overview', message: 'Description of the file' } ];
 
 class Actions {
 	constructor() {
@@ -27,6 +31,9 @@ class Actions {
 		this.uploadHTMLAction = this.uploadHTMLAction.bind(this);
 		this.uploadSubHTMLAction = this.uploadSubHTMLAction.bind(this);
 		this.uploadShelfAction = this.uploadShelfAction.bind(this);
+		this.createController = this.createController.bind(this);
+		this.createModule = this.createModule.bind(this);
+		this.createPage = this.createPage.bind(this);
 	};
 
 	_checkPath() {
@@ -45,6 +52,78 @@ class Actions {
 
 			throw new Error(err);
 		}
+	}
+
+	_createFileQuestions(type) {
+		return [
+			{ type: 'input', name: 'name', message: `Enter the name of the ${type}` }
+		];
+	}
+
+	createController() {
+
+		const questions = this._createFileQuestions('controller');
+		let totalCmd = {};
+
+		return prompt(questions)
+				.then((res) => FS.checkCreate(res, 'controller'))
+				.then((res) => totalCmd = res)
+				.then(() => prompt(fileOverview))
+				.then(res => {
+					return {
+						...totalCmd,
+						...res
+					}
+				})
+				.then(cmd => FS.createJsFile(cmd, 'controller'))
+				.then(file => message('success', `${file} has been created`))
+				.catch(err => message('error', `Error on create controller file: ${err}`));
+	}
+
+	createModule() {
+
+		const questions = this._createFileQuestions('module');
+		let totalCmd = {};
+
+		return prompt(questions)
+				.then((res) => FS.checkCreate(res, 'module'))
+				.then((res) => totalCmd = res)
+				.then(() => prompt(fileOverview))
+				.then(res => {
+					return {
+						...totalCmd,
+						...res
+					}
+				})
+				.then(cmd => FS.createJsFile(cmd, 'module'))
+				.then(file => message('success', `${file} has been created`))
+				.catch(err => message('error', `Error on create module file: ${err}`));
+	}
+
+	createPage( { account = null } ) {
+
+		const questions = this._createFileQuestions('page');
+		let totalCmd = {};
+
+		return prompt(questions)
+				.then((res) => FS.checkCreate(res, 'page'))
+				.then((res) => totalCmd = res)
+				.then(() => {
+					if(!account) {
+						fileOverview.push({ type: 'input', name: 'account', message: 'Enter the name of the project/account' });
+					}
+
+					return prompt(fileOverview)
+				})
+				.then(res => {
+					return {
+						...totalCmd,
+						...res
+					}
+				})
+				.then(cmd => FS.createPage(cmd))
+				.then(file => message('success', `${file} has been created`))
+				.catch(err => message('error', `Error on create page: ${err}`));
 	}
 
 	authAction( { email = null, account = null, site = 'default' } ) {

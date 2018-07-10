@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:vtex="http://www.vtex.com.br/2009/vtex-common" xmlns:vtex.cmc="http://www.vtex.com.br/2009/vtex-commerce">
+
+<head>
+	<title>PAGENAME</title>
+	<vtex:metaTags />
+	<vtex:contentPlaceHolder id="Meta Tags Adicionais" />
+	<!-- @if DEBUG=true -->
+	<!-- @include ../includes/head-vtex.html -->
+	<!-- @include ../../01 - HTML Templates/Sub Templates/0-ACCOUNT-head-content.html -->
+	<!-- @endif -->
+
+	<vtex:template id="0-ACCOUNT-head-content" />
+	<link rel="stylesheet" href="<!-- @echo assetsPath -->/PAGENAME.css" />
+</head>
+
+<body data-controller="PAGENAME">
+	<!-- @if DEBUG=true -->
+	<!-- @include ../../01 - HTML Templates/Sub Templates/0-ACCOUNT-header.html -->
+	<!-- @endif -->
+
+	<!-- Header -->
+	<vtex:template id="0-ACCOUNT-header" />
+	<!-- /Header -->
+
+	<div class="container">
+		<p>CONTENT</p>
+	</div>
+
+
+	<!-- @if DEBUG=true -->
+	<!-- @include ../../01 - HTML Templates/Sub Templates/0-ACCOUNT-footer.html -->
+	<!-- @endif -->
+
+	<!-- Footer -->
+	<vtex:template id="0-ACCOUNT-footer" />
+	<!-- /Footer -->
+
+	<script src="<!-- @echo assetsPath -->/PAGENAME.min.js"></script>
+</body>
+</html>

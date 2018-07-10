@@ -4,7 +4,7 @@
 
 const pkg = require('./package.json');
 const program = require('commander');
-const Actions = require('./actions');
+const Actions = require('./Actions');
 const { readFileSync, readdirSync } = require('fs');
 
 const message = require('./utils/cli-colors');
@@ -83,6 +83,21 @@ program
 		}
 	});
 
+	program
+		.command('createController')
+		.description('Create a new Nitro Controller in project structure')
+		.action(ACTIONS.createController);
+
+	program
+		.command('createModule')
+		.description('Create a new Nitro Module in project structure')
+		.action(ACTIONS.createModule);
+
+	program
+		.command('createPage')
+		.description('Create a new Page in project structure')
+		.action(ACTIONS.createPage);
+
 program
 	.command('dirname')
 	.action(() => {
@@ -106,6 +121,5 @@ program
 			throw new Error(err);
 		}
 	});
-
 
 program.parse(process.argv);
