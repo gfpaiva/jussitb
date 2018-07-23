@@ -1,6 +1,6 @@
 {
   "name": "jussitb",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "CLI VTEX utils",
   "main": "jussitb.js",
   "author": "Guilherme Paiva <gf.paiva@yahoo.com.br>",
@@ -21,12 +21,12 @@
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
     "cli-color": "^1.2.0",
-    "commander": "^2.14.1",
+    "commander": "^2.16.0",
     "form-data": "^2.3.2",
     "inquirer": "^6.0.0",
     "jsonfile": "^4.0.0",
     "md5": "^2.2.1",
     "progress": "^2.0.0",
-    "qs": "^6.5.1"
+    "qs": "^6.5.2"
   }
 }

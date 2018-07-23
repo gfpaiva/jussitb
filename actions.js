@@ -168,10 +168,13 @@ class Actions {
 	uploadAssetsAction(cmd) {
 		return this.authAction(cmd)
 			.then(authCookie => {
+
+				this._actionTitle(`Uploading Files (/files)`);
+
 				return Promise.all(VTEXCMS.setAssetFile(cmd))
 				.then(responses => {
 					// responses.map(file => message('success', `Uploaded File ${file}`));
-					this._successUpload(responses);
+					this._successUpload(responses, 'Asset');
 					return cmd;
 				});
 			});
@@ -180,11 +183,14 @@ class Actions {
 	uploadDefaultAssetsAction(cmd) {
 		return this.authAction(cmd)
 			.then(authCookie => {
+
+				this._actionTitle(`Uploading Files (/arquivos)`);
+
 				return VTEXCMS.getRequestToken()
 					.then(requestToken => Promise.all(VTEXCMS.defaultAssets(requestToken, cmd)))
 					.then(responses => {
 						// responses.map(file => message('success', `Uploaded File ${file}`));
-						this._successUpload(responses);
+						this._successUpload(responses, 'Asset');
 						return cmd;
 					});
 			});
@@ -193,6 +199,9 @@ class Actions {
 	uploadHTMLAction(cmd) {
 		return this.authAction(cmd)
 			.then(authCookie => {
+
+				this._actionTitle(`Uploading Templates HTML`);
+
 				return VTEXCMS.getHTMLTemplates()
 						.then(templateList => Promise.all(VTEXCMS.setHTML(templateList, false, false, cmd)))
 						.then(responses => {
@@ -205,6 +214,9 @@ class Actions {
 	uploadSubHTMLAction(cmd) {
 		return this.authAction(cmd)
 			.then(authCookie => {
+
+				this._actionTitle(`Uploading SubTemplates HTML`);
+
 				return VTEXCMS.getHTMLTemplates(true)
 						.then(templateList => Promise.all(VTEXCMS.setHTML(templateList, true, false, cmd)))
 						.then(responses => {
@@ -217,6 +229,9 @@ class Actions {
 	uploadShelfAction(cmd) {
 		return this.authAction(cmd)
 			.then(authCookie => {
+
+				this._actionTitle(`Uploading Shelves HTML`);
+
 				return VTEXCMS.getHTMLTemplates(true, true)
 						.then(templateList => Promise.all(VTEXCMS.setHTML(templateList, false, true, cmd)))
 						.then(responses => {
@@ -226,9 +241,9 @@ class Actions {
 			});
 	};
 
-	_successUpload(responses) {
+	_successUpload(responses, typeFile = 'Template') {
 		responses.map(( { type, templateName, content, account } ) => {
-			message(type, `${type === 'success' ? 'Uploaded' : 'Hold' } Template ${templateName}`);
+			message(type, `${type === 'success' ? 'Uploaded' : 'Hold' } ${typeFile} ${templateName}`);
 
 			if(!content) return;
 
@@ -247,6 +262,13 @@ class Actions {
 			jsonfile.writeFileSync(this.localPaths.lockPath, newLock, {spaces: 4});
 		});
 	};
+
+	_actionTitle(messageText) {
+
+		console.log('\n*****************************');
+		message('warn', messageText);
+		console.log('*****************************\n');
+	}
 };
 
 module.exports = Actions;
