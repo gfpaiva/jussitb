@@ -1,0 +1,9 @@
+@charset 'UTF-8';
+
+@each $bg-color, $color in $theme-colors {
+	.bg-#{$bg-color} { background-color: $color !important; }
+}
+
+@each $type-color, $color in $theme-colors {
+	.color-#{$type-color} { color: $color !important; }
+}

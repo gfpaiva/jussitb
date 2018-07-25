@@ -1,0 +1,37 @@
+@charset 'UTF-8';
+/*! =================================================
+	* Theme Name: Layout - // @echo package.accountName
+	* Description: CSS desenvolvido para // @echo package.name
+	* Author: // @echo package.author
+	* Empresa: Jüssi
+	* Author URI: http://www.jussi.com.br/
+	* Version: // @echo package.version
+	=================================================
+*/
+
+/*!*/
+
+/*
+===============================================================
+ @IMPORTS
+===============================================================
+*/
+
+@import 'base/icons', // ICONS
+		'base/bootstrap-reboot'; // CUSTOM VARIABLES OVERIDING BOOSTRAP VARIABLES
+
+// GRIDLEX
+@import 'base/reset-breakpoint-gridlex';
+
+// MIXINS
+@import 'helpers/mixins/breakpoint',
+		'helpers/mixins/container',
+		'helpers/mixins/spinner',
+		'helpers/mixins/position';
+
+// UTILITES
+@import 'bootstrap/scss/utilities/text';
+
+// BASE
+@import 'base/container',
+		'base/fonts';

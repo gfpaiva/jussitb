@@ -1,0 +1,52 @@
+/*
+	GENERAL DEFINITIONS
+*/
+
+// RESPONSIVE FONT
+html {
+	@include breakpoint('tablet', 'max') { font-size: $font-size-base * .9; }
+	@include transition(font-size .3s ease);
+	background-color: $white;
+	font-size: $font-size-base;
+}
+
+// [ Mobile ] - Header fixo
+body:not(.pre-login):not(.entrar):not(.landing-diretonaloja):not(.compare) {
+	@include breakpoint('tablet', 'max') { padding-top: 110px; }
+}
+
+img {
+	height: auto;
+	max-width: 100%;
+}
+
+a {
+	&.-has-decoration { text-decoration: underline; }
+}
+
+@-webkit-keyframes autofill {
+	to {
+		background: #fff;
+		/* color: #666; */
+	}
+}
+
+input:-webkit-autofill {
+	-webkit-animation-fill-mode: both;
+	-webkit-animation-name: autofill;
+}
+
+@include breakpoint('phone', 'max') {
+	body.home {
+		.prateleira-slider {
+			> .prateleira {
+				border-bottom: solid 2px $secondary-l-color;
+				margin-bottom: 1.5rem;
+
+				&:last-child {
+					border: none;
+				}
+			}
+		}
+	}
+}

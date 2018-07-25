@@ -1,0 +1,21 @@
+// BASE
+$font-family-base: 'gotham', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+$font-weight-base:	   500;
+$font-size-base: 14px;
+
+// HEADINGS
+$headings-color: map-get($map: $theme-colors, $key: 'secondary');
+$headings-font-weight: 700;
+
+// BODY
+$body-bg: $white;
+$body-color: map-get($theme-colors, 'font-color');
+
+// FONT WEIGHT
+$font-weight-light:           200;
+$font-weight-normal:          500;
+$font-weight-bold:            700;
+
+// LINK HOVER
+$link-hover-color:          darken($font-color, 15%);
+// $link-hover-decoration: none;

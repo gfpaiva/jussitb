@@ -1,0 +1,60 @@
+$icons: (
+	<% _.each(glyphs, function(glyph) { %>
+		'<%= glyph.fileName %>': '\<%= glyph.codePoint %>',
+	<% }); %>
+);
+
+@font-face {
+	font-family: '<%= fontName %>';
+	font-style: normal;
+	font-weight: normal;
+	src: url('<%= fontPath %><%= fontName %>.eot.css?v=/* @echo package.version */'),
+	url('<%= fontPath %><%= fontName %>.eot.css?#iefix&v=/* @echo package.version */') format('embedded-opentype'),
+	url('<%= fontPath %><%= fontName %>.woff.css?v=/* @echo package.version */') format('woff'),
+	url('<%= fontPath %><%= fontName %>.ttf.css?v=/* @echo package.version */') format('truetype'),
+	url('<%= fontPath %><%= fontName %>.woff2.css?v=/* @echo package.version */') format('woff2'),
+	url('<%= fontPath %><%= fontName %>.svg.css#<%= fontName %>?v=/* @echo package.version */') format('svg');
+}
+
+.icon {
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-font-smoothing: antialiased;
+	font-family: '<%= fontName %>';
+	font-style: normal;
+	font-variant: normal;
+	font-weight: normal;
+	line-height: 1;
+	speak: none;
+	text-transform: none;
+	@each $key,
+	$value in $icons {
+		&.icon-#{$key}:before {
+			content: $value
+		}
+	};
+
+	&-triangle {
+		&:before {
+			border-color: transparent transparent #BBBBBB transparent;
+			border-style: solid;
+			border-width: 0 5px 5px 5px;
+			content: '';
+			display: inline-block;
+			height: 0;
+			width: 0;
+		}
+	}
+}
+
+@mixin icon-get( $icon) {
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-font-smoothing: antialiased;
+	content: map-get($icons, $icon);
+	font-family: '<%= fontName %>' !important;
+	font-style: normal !important;
+	font-variant: normal !important;
+	font-weight: normal !important;
+	line-height: 1;
+	speak: none;
+	text-transform: none !important;
+};

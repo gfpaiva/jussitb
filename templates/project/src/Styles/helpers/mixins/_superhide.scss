@@ -1,0 +1,17 @@
+@mixin superhide() {
+	background: transparent;
+	border: 0;
+	color: transparent;
+	display: none;
+	font-size: 0;
+	height: 0;
+	left: 0;
+	margin: 0;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	text-indent: -99999cm;
+	top: 0;
+	visibility: hidden;
+	width: 0;
+}

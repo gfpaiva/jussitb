@@ -1,0 +1,17 @@
+
+// @include breakpoint('tamanho', 'min/max') {}
+@mixin breakpoint($point, $min-max: 'min') {
+	@if type-of($point) == string {
+		@each $breakpoint-name, $breakpoint-value in $breakpoint-map {
+			@if $point == $breakpoint-name {
+				@media (#{$min-max}-width: $breakpoint-value) {
+					@content;
+				}
+			}
+		}
+	} @else {
+		@media (#{$min-max}-width: $point) {
+			@content;
+		}
+	}
+}

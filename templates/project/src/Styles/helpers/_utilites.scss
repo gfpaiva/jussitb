@@ -1,0 +1,50 @@
+// Full-width elements
+.full-width { width: 100%; }
+
+img.full-width {
+	display: block;
+	height: auto;
+	max-width: 100%;
+	width: auto;
+}
+
+// Reset elements
+.no-margin   { margin: 0; }
+.no-padding  { padding: 0; }
+.no-position { position: inherit; }
+
+// Hide
+.superhide,
+%superhide {
+	@include superhide();
+}
+
+.ball,
+%ball {
+	@include ball();
+}
+
+// Overflow
+.no-overflow { overflow: inherit!important; }
+
+// Positions
+.full-centered-abs {
+	@include absolute-centered;
+}
+
+.vertical-centered-abs {
+	@include vertical-centered;
+}
+
+.horizontal-centered-abs {
+	@include horizontal-centered;
+}
+
+.f-left { float: left; }
+.f-right { float: right; }
+
+// Spacings
+.sect-padding {
+	padding: map-get($spacers, 5) 0!important;
+}
+

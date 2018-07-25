@@ -1,0 +1,22 @@
+// BORDERS
+$border-width:		5px;
+$border-radius:		.2rem;
+
+// BUTTONS
+$btn-font-weight:		$font-weight-bold;
+$btn-padding-y:         .532rem;
+$btn-padding-x:         1.428rem;
+
+// DROPDOWNS
+$dropdown-link-hover-bg:            map-get($map: $theme-colors, $key: 'secondary-ul');
+$dropdown-link-active-bg:           map-get($map: $theme-colors, $key: 'primary');
+
+// KBD
+$kbd-color:		$gray-900;
+$kbd-bg:		$gray-300;
+
+// DARK COLOR AUTOMATICALLY GENERATED
+$yiq-text-dark: map-get($theme-colors, 'secondary');
+
+// FOCUS BUTTONS
+$input-btn-focus-width: 0;

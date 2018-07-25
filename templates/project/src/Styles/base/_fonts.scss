@@ -1,0 +1,39 @@
+/************************
+    FONT FACE
+*************************/
+
+@font-face {
+	font-family: 'gotham';
+	font-style: normal;
+	font-weight: $font-weight-light;
+	src: url('/arquivos/gotham-rounded-light.eot.css?v=/* @echo package.version */'),
+		 url('/arquivos/gotham-rounded-light.eot.css?#iefix&v=/* @echo package.version */') format('embedded-opentype'),
+		 url('/arquivos/gotham-rounded-light.woff2.css?v=/* @echo package.version */') format('woff2'),
+		 url('/arquivos/gotham-rounded-light.woff.css?v=/* @echo package.version */') format('woff'),
+		 url('/arquivos/gotham-rounded-light.ttf.css?v=/* @echo package.version */') format('truetype'),
+		 url('/arquivos/gotham-rounded-light.svg.css#gotham-rounded-light?v=/* @echo package.version */') format('svg');
+}
+
+@font-face {
+	font-family: 'gotham';
+	font-style: normal;
+	font-weight: $font-weight-normal;
+	src: url('/arquivos/gotham-rounded-book.eot.css?v=/* @echo package.version */'),
+		 url('/arquivos/gotham-rounded-book.eot.css?#iefix&v=/* @echo package.version */') format('embedded-opentype'),
+		 url('/arquivos/gotham-rounded-book.woff2.css?v=/* @echo package.version */') format('woff2'),
+		 url('/arquivos/gotham-rounded-book.woff.css?v=/* @echo package.version */') format('woff'),
+		 url('/arquivos/gotham-rounded-book.ttf.css?v=/* @echo package.version */') format('truetype'),
+		 url('/arquivos/gotham-rounded-book.svg.css#gotham-rounded-book?v=/* @echo package.version */') format('svg');
+}
+
+@font-face {
+	font-family: 'gotham';
+	font-style: normal;
+	font-weight: $font-weight-bold;
+	src: url('/arquivos/gotham-rounded-bold.eot.css?v=/* @echo package.version */'),
+		 url('/arquivos/gotham-rounded-bold.eot.css?#iefix&v=/* @echo package.version */') format('embedded-opentype'),
+		 url('/arquivos/gotham-rounded-bold.woff2.css?v=/* @echo package.version */') format('woff2'),
+		 url('/arquivos/gotham-rounded-bold.woff.css?v=/* @echo package.version */') format('woff'),
+		 url('/arquivos/gotham-rounded-bold.ttf.css?v=/* @echo package.version */') format('truetype'),
+		 url('/arquivos/gotham-rounded-bold.svg.css#gotham-rounded-bold?v=/* @echo package.version */') format('svg');
+}

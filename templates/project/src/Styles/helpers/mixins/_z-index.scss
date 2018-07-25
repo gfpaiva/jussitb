@@ -1,0 +1,5 @@
+@charset 'UTF-8';
+
+@each $className, $indexValue in $z-index-map {
+	.#{$className} { z-index: $indexValue; }
+}

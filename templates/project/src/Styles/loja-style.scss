@@ -1,0 +1,63 @@
+@charset 'UTF-8';
+
+/*! =================================================
+	* Theme Name: Layout - // @echo package.accountName
+	* Description: CSS desenvolvido para // @echo package.name
+	* Author: // @echo package.author
+	* Empresa: Jüssi
+	* Author URI: http://www.jussi.com.br/
+	* Version: // @echo package.version
+	=================================================
+*/
+/*!*/
+
+/*
+===============================================================
+ @IMPORTS
+===============================================================
+*/
+
+// LIBS
+@import 'slick-carousel/slick/slick.scss';
+
+@import 'base/bootstrap-reboot', // CUSTOM VARIABLES OVERIDING BOOSTRAP VARIABLES
+		'base/icons'; // ICONS
+
+// GRIDLEX
+@import 'base/reset-breakpoint-gridlex';
+
+// MIXINS
+@import 'helpers/mixins/breakpoint',
+		'helpers/mixins/container',
+		'helpers/mixins/superhide',
+		'helpers/mixins/button',
+		'helpers/mixins/position',
+		'helpers/mixins/z-index',
+		'helpers/mixins/spinner',
+		'helpers/mixins/ball';
+
+// UTILITES
+@import 'bootstrap/scss/utilities/text',
+		'bootstrap/scss/utilities/flex',
+		'bootstrap/scss/utilities/display',
+		'bootstrap/scss/utilities/position',
+		'helpers/animations',
+		'helpers/colors',
+		'helpers/utilites',
+		'helpers/spacing',
+		'helpers/functions';
+
+// BASE
+@import 'base/container',
+		'base/fonts',
+		'base/vtex-reset';
+
+// BOOTSTRAP COMPONENTS
+@import 'bootstrap/scss/type',
+		'bootstrap/scss/dropdown';
+
+// GENERAL COMPONENTS
+
+
+// GENERAL OVERWITE
+@import 'base/general';

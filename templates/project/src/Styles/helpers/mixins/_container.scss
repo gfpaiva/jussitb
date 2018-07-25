@@ -1,0 +1,13 @@
+@mixin make-container() {
+	margin: 0 auto;
+	padding: 0 .5rem;
+	width: 95%;
+}
+
+@mixin make-container-max-width ($max-widths: $container-max-widths, $breakpoints: $grid-breakpoints) {
+	@each $breakpoint, $container-max-width in $max-widths {
+		@include media-breakpoint-up($breakpoint, $breakpoints) {
+			max-width: $container-max-width;
+		}
+	}
+}

@@ -1,0 +1,38 @@
+/************************
+    VTEX RESET
+*************************/
+
+@charset 'UTF-8';
+
+#ajaxBusy {
+	@extend %superhide;
+}
+
+// Ajuste modal Vtex - BTN Close
+.vtexIdUI .modal-header {
+	.close {
+		display: block !important;
+		right: 5px!important;
+		top: 5px!important;
+
+		&:focus { outline: none!important; }
+	}
+
+	.vtexIdUI-heading {
+		font-size: 14px!important;
+		text-align: center;
+	}
+}
+
+// Página de listagem HIDES
+// .Marca, .HideMarca,
+.searchResultsTime,
+.filterBy,
+.menu-navegue,
+.pager,
+#prateleira .sub,
+.orderBy label,
+.productClusterSearchableIds {
+	display: none;
+	visibility: hidden;
+}

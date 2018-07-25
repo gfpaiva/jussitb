@@ -1,0 +1,20 @@
+@mixin absolute-centered() {
+	left: 50%;
+	position: absolute;
+	top: 50%;
+	transform: translate(-50%, -50%);
+}
+
+@mixin vertical-centered() {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+@mixin horizontal-centered() {
+	left: 50%;
+	position: absolute;
+	transform: translateX(-50%);
+}
+
+

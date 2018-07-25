@@ -1,0 +1,29 @@
+@mixin spinner($color: #FFCB0B, $bgColor: #FFFFFF, $size: 30px, $density: 5px, $animSpeed: 1s) {
+	@include border-radius(50%);
+	animation: spin $animSpeed infinite linear;
+	background-image: (linear-gradient(to left, $color 50%, transparent 50%));
+	box-shadow: 0 $size/2 ($size - $density) 0 $color inset;
+	height: $size;
+	width: $size;
+	&:before {
+		@include border-radius(50%);
+		background: $bgColor;
+		content: '';
+		display: block;
+		height: $size - $density;
+		left: 50%;
+		position: relative;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		width: $size - $density;
+	}
+}
+
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(359deg);
+	}
+}

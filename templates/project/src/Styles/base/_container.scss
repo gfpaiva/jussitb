@@ -1,0 +1,12 @@
+/*
+	GRID CONTAINER
+*/
+
+.container {
+	@include make-container();
+	@include make-container-max-width();
+}
+
+.container-fluid {
+	@include make-container();
+}
