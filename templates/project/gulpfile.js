@@ -145,7 +145,7 @@ gulp.task('fonts',/*  ['icons'], */ () => {
 });
 
 gulp.task('icons', () => {
-	const fontName = 'loja';
+	const fontName = 'PROJECTACCOUNTNAME';
 
 	return gulp.src(paths.icons)
 		.pipe($.iconfontCss({
@@ -206,17 +206,15 @@ gulp.task('scripts', ['lint'], () => {
 					}
 				]
 			},
+			mode: $.util.env.production ? 'production' : 'development',
+			optimization: {
+				minimize: $.util.env.production ? true : false,
+			},
 			plugins: [
 				new webpack.webpack.DefinePlugin({
 					VERSION: JSON.stringify( pkg.version )
 				}),
 				new webpack.webpack.BannerPlugin('Build Version: ' + pkg.version),
-				$.util.env.production ? new webpack.webpack.optimize.UglifyJsPlugin({
-					minimize: true,
-					compress: {
-						warnings: false
-					}
-				}) : $.util.noop,
 				$.util.env.production ? $.util.noop : new HardSourceWebpackPlugin()
 			],
 			devtool: $.util.env.production ? '' : 'eval-source-map'
