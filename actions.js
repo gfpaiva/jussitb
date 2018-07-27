@@ -128,6 +128,16 @@ class Actions {
 				.catch(err => message('error', `Error on create page: ${err}`));
 	}
 
+	createProject() {
+
+		return this.authAction(cmd)
+			.then(authCookie => {
+
+				return VTEXCMS.getHTMLTemplates()
+						.then(/* templateList => Promise.all(VTEXCMS.setHTML(templateList, false, false, cmd)) */)
+			});
+	}
+
 	authAction( { email = null, account = null, site = 'default' } ) {
 		this._checkPath();
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const { readFileSync, readFile, readdirSync, createReadStream } = require('fs');
+const { readFile, readdirSync, createReadStream } = require('fs');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const qs = require('qs');
@@ -298,17 +298,7 @@ class VtexCMS {
 						return resolve({ templateName, account, type: 'notice' });
 					};
 
-					const currTemplate = $(`.template div:contains("${templateName}")`).next('a').attr('href');
-
-					try {
-						currTemplate.match(/(templateId=)(.+)$/)[2];
-					} catch(err) {
-						message('error', `Template not found ${templateName}`);
-
-						throw new Error(err);
-					}
-
-					const templateId = currTemplate.match(/(templateId=)(.+)$/)[2];
+					const templateId = this._getTemplateId($, templateName);
 
 					let reqData = {
 						templateName,
@@ -385,6 +375,27 @@ class VtexCMS {
 		let uploadPromises = files.map(genPromises);
 
 		return uploadPromises;
+	};
+
+	/**
+	 * Get templateId from VTEX admin HTML
+	 * @param  {Object} $ cheerio html object
+	 * @param  {String} templateName string contains the current templateName
+	 * @returns {String} Hash with VTEX templateId
+	 */
+	_getTemplateId($, templateName) {
+
+		const currTemplate = $(`.template div:contains("${templateName}")`).next('a').attr('href');
+
+		try {
+			currTemplate.match(/(templateId=)(.+)$/)[2];
+		} catch(err) {
+			message('error', `Template not found ${templateName}`);
+
+			throw new Error(err);
+		}
+
+		return currTemplate.match(/(templateId=)(.+)$/)[2];
 	};
 
 	/**

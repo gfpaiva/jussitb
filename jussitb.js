@@ -83,21 +83,21 @@ program
 		}
 	});
 
-	program
-		.command('createController')
-		.description('Create a new Nitro Controller in project structure')
-		.action(ACTIONS.createController);
+program
+	.command('createController')
+	.description('Create a new Nitro Controller in project structure')
+	.action(ACTIONS.createController);
 
-	program
-		.command('createModule')
-		.description('Create a new Nitro Module in project structure')
-		.action(ACTIONS.createModule);
+program
+	.command('createModule')
+	.description('Create a new Nitro Module in project structure')
+	.action(ACTIONS.createModule);
 
-	program
-		.command('createPage')
-		.option('--account <account>', 'Set the VTEX project/account name')
-		.description('Create a new Page in project structure')
-		.action(ACTIONS.createPage);
+program
+	.command('createPage')
+	.option('--account <account>', 'Set the VTEX project/account name')
+	.description('Create a new Page in project structure')
+	.action(ACTIONS.createPage);
 
 program
 	.command('dirname')
