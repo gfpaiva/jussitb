@@ -145,7 +145,7 @@ gulp.task('fonts',/*  ['icons'], */ () => {
 });
 
 gulp.task('icons', () => {
-	const fontName = 'PROJECTACCOUNTNAME';
+	const fontName = 'PROJECTACCOUNTNAME-icons';
 
 	return gulp.src(paths.icons)
 		.pipe($.iconfontCss({

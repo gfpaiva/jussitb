@@ -100,6 +100,12 @@ program
 	.action(ACTIONS.createPage);
 
 program
+	.command('createProject')
+	.option('--account <account>', 'Set the VTEX project/account name')
+	.description('Create a new Project structure')
+	.action(ACTIONS.createProject);
+
+program
 	.command('dirname')
 	.action(() => {
 		console.log('DIRNAME: ', __dirname);

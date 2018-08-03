@@ -221,6 +221,19 @@ class VtexCMS {
 	};
 
 	/**
+	 * Get templates names from VTEX admin HTML
+	 * @param  {String} templateList HTML list of all templates
+	 * @returns {Array} with all template names on VTEX
+	 */
+	getTemplateNames(templateList) {
+		const $ = cheerio.load(templateList);
+
+		return $(`.template > div`).map(function() {
+			return $(this).text();
+		}).get();
+	}
+
+	/**
 	 * Get HTML Shelf template by ID on VTEX CMS
 	 * @param  {String} shelfTemplateId UID of Shelf Template
 	 * @returns {Promise} Promise with unique template (in HTML format)

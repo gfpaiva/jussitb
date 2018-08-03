@@ -17,11 +17,7 @@
 ===============================================================
 */
 
-// LIBS
-@import 'slick-carousel/slick/slick.scss';
-
-@import 'base/bootstrap-reboot', // CUSTOM VARIABLES OVERIDING BOOSTRAP VARIABLES
-		'base/icons'; // ICONS
+@import 'base/icons'; // ICONS
 
 // GRIDLEX
 @import 'base/reset-breakpoint-gridlex';
@@ -37,11 +33,7 @@
 		'helpers/mixins/ball';
 
 // UTILITES
-@import 'bootstrap/scss/utilities/text',
-		'bootstrap/scss/utilities/flex',
-		'bootstrap/scss/utilities/display',
-		'bootstrap/scss/utilities/position',
-		'helpers/animations',
+@import 'helpers/animations',
 		'helpers/colors',
 		'helpers/utilites',
 		'helpers/spacing',
@@ -51,13 +43,6 @@
 @import 'base/container',
 		'base/fonts',
 		'base/vtex-reset';
-
-// BOOTSTRAP COMPONENTS
-@import 'bootstrap/scss/type',
-		'bootstrap/scss/dropdown';
-
-// GENERAL COMPONENTS
-
 
 // GENERAL OVERWITE
 @import 'base/general';

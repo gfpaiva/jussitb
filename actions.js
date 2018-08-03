@@ -3,6 +3,7 @@
 const { prompt } = require('inquirer');
 const { readFileSync, readdirSync } = require('fs');
 const jsonfile = require('jsonfile');
+const Spinner = require('cli-spinner').Spinner;
 
 const message = require('./utils/cli-colors');
 const VtexId = require('./Vtexid');
@@ -34,6 +35,7 @@ class Actions {
 		this.createController = this.createController.bind(this);
 		this.createModule = this.createModule.bind(this);
 		this.createPage = this.createPage.bind(this);
+		this.createProject = this.createProject.bind(this);
 	};
 
 	_checkPath() {
@@ -70,10 +72,12 @@ class Actions {
 				.then((res) => totalCmd = res)
 				.then(() => prompt(fileOverview))
 				.then(res => {
-					return {
+					totalCmd = {
 						...totalCmd,
 						...res
 					}
+
+					return totalCmd;
 				})
 				.then(cmd => FS.createJsFile(cmd, 'controller'))
 				.then(file => message('success', `${file} has been created`))
@@ -90,10 +94,12 @@ class Actions {
 				.then((res) => totalCmd = res)
 				.then(() => prompt(fileOverview))
 				.then(res => {
-					return {
+					totalCmd = {
 						...totalCmd,
 						...res
 					}
+
+					return totalCmd;
 				})
 				.then(cmd => FS.createJsFile(cmd, 'module'))
 				.then(file => message('success', `${file} has been created`))
@@ -110,7 +116,7 @@ class Actions {
 				.then((res) => totalCmd = res)
 				.then(() => {
 					if(!account) {
-						fileOverview.push({ type: 'input', name: 'account', message: 'Enter the name of the project/account' });
+						fileOverview.push({ type: 'input', name: 'account', message: 'Enter the VTEX account' });
 					} else {
 						totalCmd.account = account;
 					}
@@ -118,28 +124,94 @@ class Actions {
 					return prompt(fileOverview)
 				})
 				.then(res => {
-					return {
+					totalCmd = {
 						...totalCmd,
 						...res
 					}
+
+					return totalCmd;
 				})
 				.then(cmd => FS.createPage(cmd))
 				.then(file => message('success', `${file} has been created`))
 				.catch(err => message('error', `Error on create page: ${err}`));
 	}
 
-	createProject() {
+	createProject( { account = null } ) {
 
-		return this.authAction(cmd)
+		const questions = this._createFileQuestions('project');
+		let totalCmd = {};
+
+		return prompt(questions)
+				.then((res) => FS.checkCreate(res, 'project'))
+				.then((res) => totalCmd = res)
+				.then(() => {
+					let newQuestions = [];
+
+					if(!account) {
+						newQuestions.push({ type: 'input', name: 'account', message: 'Enter the VTEX account' });
+					} else {
+						totalCmd.account = account;
+					}
+
+					newQuestions.push({ type: 'confirm', name: 'sync', message: 'Want to sync the platform templates?' })
+
+					return prompt(newQuestions)
+				})
+				.then(res => {
+					totalCmd = {
+						...totalCmd,
+						...res
+					}
+
+					return totalCmd;
+				})
+				.then(cmd => FS.createProject(cmd))
+				.then(project => message('success', `${project} has been created`))
+				.then(() => {
+					if(totalCmd.sync) {
+						this.createHTMLLocalFiles(totalCmd);
+					}
+
+					return true;
+				})
+				.catch(err => message('error', `Error on create project: ${err}`));
+	}
+
+	createHTMLLocalFiles(cmd) {
+
+		this._actionTitle('SYNC: creating files');
+
+		return this.authAction(cmd, false)
 			.then(authCookie => {
 
+				const spinner = new Spinner('Processing..');
+				spinner.setSpinnerString('|/-\\');
+				spinner.start();
+
 				return VTEXCMS.getHTMLTemplates()
-						.then(/* templateList => Promise.all(VTEXCMS.setHTML(templateList, false, false, cmd)) */)
+						.then(templateList => VTEXCMS.getTemplateNames(templateList))
+						.then(templateNames => Promise.all(FS.createProjectHTML(templateNames, 'HTML', cmd.name)))
+
+						.then(() => VTEXCMS.getHTMLTemplates(true))
+						.then(templateList => VTEXCMS.getTemplateNames(templateList))
+						.then(templateNames => Promise.all(FS.createProjectHTML(templateNames, 'SUB' , cmd.name)))
+
+						.then(() => VTEXCMS.getHTMLTemplates(false, true))
+						.then(templateList => VTEXCMS.getTemplateNames(templateList))
+						.then(templateNames => Promise.all(FS.createProjectHTML(templateNames, 'SHELF' , cmd.name)))
+
+						.then(() => {
+							spinner.stop(true);
+							message('success', 'HTML Templates has been created');
+						});
 			});
 	}
 
-	authAction( { email = null, account = null, site = 'default' } ) {
-		this._checkPath();
+
+
+	authAction( { email = null, account = null, site = 'default' }, checkPath = false ) {
+
+		if(checkPath) this._checkPath();
 
 		if(VTEXID.authCookie) return Promise.resolve(VTEXID.authCookie);
 
