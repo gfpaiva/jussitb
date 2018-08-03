@@ -9,6 +9,7 @@ const md5 = require('md5');
 const jsonfile = require('jsonfile');
 const message = require('./utils/cli-colors');
 const FormData = require('form-data');
+const HTMLDecoder = require("html-decoder");
 
 const PROJECTDIR = process.cwd();
 
@@ -24,6 +25,7 @@ class VtexCMS {
 			setHTMLTemplate: `/admin/a/PortalManagement/SaveTemplate`,
 			setShelfTemplate: `/admin/a/PortalManagement/SaveShelfTemplate`,
 			getHTMLTemplates: `/admin/a/PortalManagement/GetTemplateList`,
+			getHTMLTemplate: `/admin/a/PortalManagement/TemplateContent?templateId=`,
 			getShelfTemplates: `/admin/a/PortalManagement/ShelfTemplateContent`,
 			getRequestToken: `/admin/a/PortalManagement/AddFile?fileType=css`
 		};
@@ -215,10 +217,49 @@ class VtexCMS {
 					return data;
 				})
 				.catch(err => {
-					message('error', `Get HTML template error: ${err}`);
+					message('error', `Get HTML templates error: ${err}`);
 					throw new Error(err);
 				});
 	};
+
+	getHTMLTemplate(templateId) {
+
+		return this.AXIOS
+				.post(`${this.endpoints.getHTMLTemplate}${templateId}`)
+				.then(( { data } ) => {
+
+					console.log(data);
+
+					const $ = cheerio.load(data),
+						decoder = new HTMLDecoder(),
+						htmlString = $(`#originalTemplate`).val();
+
+					return decoder.decode(htmlString);
+				})
+				.catch(err => {
+					message('error', `Get HTML template error: ${err}`);
+					throw new Error(err);
+				});
+	}
+
+	setTemplateContent(files, templateList) {
+
+		const $ = cheerio.load(templateList);
+
+		return files.map(file => {
+			return new Promise(resolve => {
+
+				const templateName = this._sanitizeFileName(file);
+				const templateId = this._getTemplateId($, templateName);
+
+				this.getHTMLTemplate(templateId)
+					.then(html => resolve({
+						file,
+						html
+					}));
+			});
+		});
+	}
 
 	/**
 	 * Get templates names from VTEX admin HTML

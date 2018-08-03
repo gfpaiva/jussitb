@@ -184,13 +184,24 @@ class Actions {
 		return this.authAction(cmd, false)
 			.then(authCookie => {
 
+				let currentTemplateList;
+
 				const spinner = new Spinner('Processing..');
 				spinner.setSpinnerString('|/-\\');
 				spinner.start();
 
 				return VTEXCMS.getHTMLTemplates()
-						.then(templateList => VTEXCMS.getTemplateNames(templateList))
+						.then(templateList => {
+							currentTemplateList = templateList;
+							return VTEXCMS.getTemplateNames(templateList);
+						})
 						.then(templateNames => Promise.all(FS.createProjectHTML(templateNames, 'HTML', cmd.name)))
+						.then(files => {
+							console.log(files);
+							Promise.all(VTEXCMS.setTemplateContent(files, VTEXCMS.templates))
+						})
+						.then(obj => console.log(obj))
+
 
 						.then(() => VTEXCMS.getHTMLTemplates(true))
 						.then(templateList => VTEXCMS.getTemplateNames(templateList))
