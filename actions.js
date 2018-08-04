@@ -175,6 +175,7 @@ class Actions {
 				.then(() => {
 					this._actionTitle('Installing Dependencies');
 					child = exec(`cd ${totalCmd.name} && npm install`).stderr.pipe(process.stderr);
+					return true;
 				})
 				.catch(err => message('error', `Error on create project: ${err}`));
 	}

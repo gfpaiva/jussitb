@@ -5,8 +5,7 @@
 // RESPONSIVE FONT
 html {
 	@include breakpoint('tablet', 'max') { font-size: $font-size-base * .9; }
-	@include transition(font-size .3s ease);
-	background-color: $white;
+	background-color: #fff;
 	font-size: $font-size-base;
 }
 

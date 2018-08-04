@@ -42,9 +42,3 @@ img.full-width {
 
 .f-left { float: left; }
 .f-right { float: right; }
-
-// Spacings
-.sect-padding {
-	padding: map-get($spacers, 5) 0!important;
-}
-

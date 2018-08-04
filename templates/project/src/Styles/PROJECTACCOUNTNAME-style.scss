@@ -17,10 +17,9 @@
 ===============================================================
 */
 
-@import 'base/icons'; // ICONS
+@import 'variables/variables';
 
-// GRIDLEX
-@import 'base/reset-breakpoint-gridlex';
+@import 'base/icons'; // ICONS
 
 // MIXINS
 @import 'helpers/mixins/breakpoint',
@@ -40,8 +39,7 @@
 		'helpers/functions';
 
 // BASE
-@import 'base/container',
-		'base/fonts',
+@import 'base/fonts',
 		'base/vtex-reset';
 
 // GENERAL OVERWITE
