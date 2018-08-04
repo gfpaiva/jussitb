@@ -4,6 +4,7 @@ const { prompt } = require('inquirer');
 const { readFileSync, readdirSync } = require('fs');
 const jsonfile = require('jsonfile');
 const Spinner = require('cli-spinner').Spinner;
+const exec = require('child_process').exec;
 
 const message = require('./utils/cli-colors');
 const VtexId = require('./Vtexid');
@@ -168,11 +169,12 @@ class Actions {
 				.then(cmd => FS.createProject(cmd))
 				.then(project => message('success', `${project} has been created`))
 				.then(() => {
-					if(totalCmd.sync) {
-						this.createHTMLLocalFiles(totalCmd);
-					}
-
+					if(totalCmd.sync) return this.createHTMLLocalFiles(totalCmd);
 					return true;
+				})
+				.then(() => {
+					this._actionTitle('Installing Dependencies');
+					child = exec(`cd ${cmd.name} && npm install`).stderr.pipe(process.stderr);
 				})
 				.catch(err => message('error', `Error on create project: ${err}`));
 	}
@@ -184,32 +186,28 @@ class Actions {
 		return this.authAction(cmd, false)
 			.then(authCookie => {
 
-				let currentTemplateList;
-
 				const spinner = new Spinner('Processing..');
 				spinner.setSpinnerString('|/-\\');
 				spinner.start();
 
 				return VTEXCMS.getHTMLTemplates()
-						.then(templateList => {
-							currentTemplateList = templateList;
-							return VTEXCMS.getTemplateNames(templateList);
-						})
+						.then(templateList => VTEXCMS.getTemplateNames(templateList))
 						.then(templateNames => Promise.all(FS.createProjectHTML(templateNames, 'HTML', cmd.name)))
-						.then(files => {
-							console.log(files);
-							Promise.all(VTEXCMS.setTemplateContent(files, VTEXCMS.templates))
-						})
-						.then(obj => console.log(obj))
+						.then(files => Promise.all(VTEXCMS.setTemplateContent(files, VTEXCMS.templates)))
+						.then(filesHTML => Promise.all(FS.fillProjectHTML(filesHTML)))
 
 
 						.then(() => VTEXCMS.getHTMLTemplates(true))
 						.then(templateList => VTEXCMS.getTemplateNames(templateList))
 						.then(templateNames => Promise.all(FS.createProjectHTML(templateNames, 'SUB' , cmd.name)))
+						.then(files => Promise.all(VTEXCMS.setTemplateContent(files, VTEXCMS.templates)))
+						.then(filesHTML => Promise.all(FS.fillProjectHTML(filesHTML)))
 
 						.then(() => VTEXCMS.getHTMLTemplates(false, true))
 						.then(templateList => VTEXCMS.getTemplateNames(templateList))
 						.then(templateNames => Promise.all(FS.createProjectHTML(templateNames, 'SHELF' , cmd.name)))
+						.then(files => Promise.all(VTEXCMS.setTemplateContent(files, VTEXCMS.templates, true)))
+						.then(filesHTML => Promise.all(FS.fillProjectHTML(filesHTML)))
 
 						.then(() => {
 							spinner.stop(true);

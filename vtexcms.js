@@ -9,7 +9,7 @@ const md5 = require('md5');
 const jsonfile = require('jsonfile');
 const message = require('./utils/cli-colors');
 const FormData = require('form-data');
-const HTMLDecoder = require("html-decoder");
+const decode = require('decode-html');
 
 const PROJECTDIR = process.cwd();
 
@@ -27,6 +27,7 @@ class VtexCMS {
 			getHTMLTemplates: `/admin/a/PortalManagement/GetTemplateList`,
 			getHTMLTemplate: `/admin/a/PortalManagement/TemplateContent?templateId=`,
 			getShelfTemplates: `/admin/a/PortalManagement/ShelfTemplateContent`,
+			getShelfTemplate: `/admin/a/PortalManagement/ShelfTemplateContent?shelfTemplateId=`,
 			getRequestToken: `/admin/a/PortalManagement/AddFile?fileType=css`
 		};
 		this.authCookie =  {
@@ -222,19 +223,22 @@ class VtexCMS {
 				});
 	};
 
-	getHTMLTemplate(templateId) {
+	/**
+	 * Get HTML of a single template on VTEX CMS
+	 * @param  {String} templateId hash with templateId to make a api call
+	 * @param  {Boolean} isShelf specify if want to get shelves template
+	 * @returns {Promise} Promise with a single template formated/decoded HTML
+	 */
+	getHTMLTemplate(templateId, isShelf = false) {
 
 		return this.AXIOS
-				.post(`${this.endpoints.getHTMLTemplate}${templateId}`)
+				.post(`${isShelf ? this.endpoints.getShelfTemplate : this.endpoints.getHTMLTemplate}${templateId}`)
 				.then(( { data } ) => {
 
-					console.log(data);
-
 					const $ = cheerio.load(data),
-						decoder = new HTMLDecoder(),
 						htmlString = $(`#originalTemplate`).val();
 
-					return decoder.decode(htmlString);
+					return decode(htmlString);
 				})
 				.catch(err => {
 					message('error', `Get HTML template error: ${err}`);
@@ -242,17 +246,25 @@ class VtexCMS {
 				});
 	}
 
-	setTemplateContent(files, templateList) {
+	/**
+	 * Set file name with the specific HTML
+	 * @param  {Array} files array of file names in your project
+	 * @param  {String} templateList string with html containing the total templates and ids
+	 * @param  {Boolean} isShelf specify if want to get shelves template
+	 * @returns {Array} Array of promises containing a object with file and html decoded
+	 */
+	setTemplateContent(files, templateList, isShelf = false) {
 
 		const $ = cheerio.load(templateList);
 
 		return files.map(file => {
 			return new Promise(resolve => {
 
-				const templateName = this._sanitizeFileName(file);
+				const fileName = this._pathToFileName(file);
+				const templateName = this._sanitizeFileName(fileName);
 				const templateId = this._getTemplateId($, templateName);
 
-				this.getHTMLTemplate(templateId)
+				this.getHTMLTemplate(templateId, isShelf)
 					.then(html => resolve({
 						file,
 						html
@@ -459,6 +471,16 @@ class VtexCMS {
 	 */
 	_sanitizeFileName(templateName) {
 		return templateName.replace(/\.html|\.css|\.js/gmi, '');
+	}
+
+	/**
+	 * From a full path, get only the file name and extension
+	 * @param  {String} path complete path
+	 * @returns {String} File name with extension
+	 */
+	_pathToFileName(path) {
+		let fileName = path.split('\\');
+		return fileName[fileName.length - 1];
 	}
 
 	/**

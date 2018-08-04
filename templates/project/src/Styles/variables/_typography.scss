@@ -8,7 +8,7 @@ $headings-color: map-get($map: $theme-colors, $key: 'secondary');
 $headings-font-weight: 700;
 
 // BODY
-$body-bg: $white;
+$body-bg: '#fff';
 $body-color: map-get($theme-colors, 'font-color');
 
 // FONT WEIGHT

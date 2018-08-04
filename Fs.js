@@ -134,6 +134,11 @@ class Fs {
 		return templateList.map(template => this._writeFilePromise(`${this.srcPaths.project[templateType](projectFolderName)}\\${template}.html`, ''));
 	}
 
+	fillProjectHTML(contents) {
+
+		return contents.map(content => this._writeFilePromise(content.file, content.html));
+	}
+
 	_copyPastePromise(src, dest) {
 
 		return new Promise((resolve) => {

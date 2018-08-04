@@ -4,6 +4,7 @@
 	"version": "v1.0.0",
 	"author": "Jussi Platform",
 	"private": true,
+	"secureUrl": true,
 	"dependencies": {},
 	"devDependencies": {
 		"autoprefixer": "^9.0.1",
