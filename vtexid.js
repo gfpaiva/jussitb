@@ -2,6 +2,9 @@
 
 const axios = require('axios');
 const message = require('./utils/cli-colors');
+const jsonfile = require('jsonfile');
+
+const DIRNAME = __dirname;
 
 class VtexId {
 	constructor(account = null) {
@@ -22,12 +25,17 @@ class VtexId {
 				accountName: this.account
 			}
 		};
+		this.storeAuthCookiePath = `${DIRNAME}/utils/storeAuthCookie.json`;
 	};
 
 	setAccount(account) {
 		this.account = account;
 		this.uri = `http://${account}.vtexcommercestable.com.br/api/vtexid/pub/authentication`;
 	};
+
+	setAuthCookie(authCookie) {
+		this.authCookie = authCookie;
+	}
 
 	getToken() {
 		return axios
@@ -90,6 +98,39 @@ class VtexId {
 					throw new Error(err);
 				});
 	};
+
+	checkAuthStore(account, email) {
+
+		const storeAuthCookie = jsonfile.readFileSync(this.storeAuthCookiePath, { throws: false });
+
+		if(storeAuthCookie[account]
+			&& storeAuthCookie[account][email]
+			&& this._checkDiffDate(storeAuthCookie[account][email].lastUpdate)) return storeAuthCookie[account][email].authCookie;
+
+		return false;
+	}
+
+	writeAuthStore(account, email, authCookie) {
+
+		const storeAuthCookie = jsonfile.readFileSync(this.storeAuthCookiePath, { throws: false });
+		const newStoreAuthCookie = {
+			...storeAuthCookie,
+			[account]: {
+				...storeAuthCookie[account],
+				[email]: {
+					authCookie,
+					lastUpdate: new Date()
+				}
+			}
+		};
+
+		jsonfile.writeFileSync(this.storeAuthCookiePath, newStoreAuthCookie, {spaces: 4});
+	}
+
+	_checkDiffDate(storeDate) {
+
+		return Math.round(Math.abs(new Date() - new Date(storeDate)) / 36e5) < 8;
+	}
 
 };
 

@@ -174,7 +174,8 @@ class Actions {
 				})
 				.then(() => {
 					this._actionTitle('Installing Dependencies');
-					child = exec(`cd ${totalCmd.name} && npm install`).stderr.pipe(process.stderr);
+					const child = exec(`cd ${totalCmd.name} && npm install`).stderr.pipe(process.stderr);
+
 					return true;
 				})
 				.catch(err => message('error', `Error on create project: ${err}`));
@@ -197,7 +198,6 @@ class Actions {
 						.then(files => Promise.all(VTEXCMS.setTemplateContent(files, VTEXCMS.templates)))
 						.then(filesHTML => Promise.all(FS.fillProjectHTML(filesHTML)))
 
-
 						.then(() => VTEXCMS.getHTMLTemplates(true))
 						.then(templateList => VTEXCMS.getTemplateNames(templateList))
 						.then(templateNames => Promise.all(FS.createProjectHTML(templateNames, 'SUB' , cmd.name)))
@@ -217,9 +217,7 @@ class Actions {
 			});
 	}
 
-
-
-	authAction( { email = null, account = null, site = 'default' }, checkPath = false ) {
+	authAction( { email = null, account = null, site = 'default' }, checkPath = true ) {
 
 		if(checkPath) this._checkPath();
 
@@ -227,16 +225,16 @@ class Actions {
 
 		const questions = [];
 
-		if(!email) {
-			questions.push({ type: 'input', name: 'email', message: 'Enter your e-mail' })
-		} else {
-			this.email = email;
-		}
-
 		if(!account) {
 			questions.push({ type: 'input', name: 'account', message: 'Enter the VTEX account' });
 		} else {
 			this.account = account;
+		}
+
+		if(!email) {
+			questions.push({ type: 'input', name: 'email', message: 'Enter your e-mail' })
+		} else {
+			this.email = email;
 		}
 
 		return prompt(questions)
@@ -246,13 +244,23 @@ class Actions {
 
 					VTEXID.setAccount(this.account);
 
-					return VTEXID.getEmailAccessKey(this.email);
+					const authStore = VTEXID.checkAuthStore(account, email);
+
+					if(authStore) {
+						VTEXID.setAuthCookie(authStore);
+						return authStore;
+					}
+
+					return VTEXID.getEmailAccessKey(this.email)
+							.then(() => prompt({ type: 'input', name: 'accesskey', message: 'Enter the VTEX Access Key (with 6 digits)' }))
+							.then(( { accesskey } ) => VTEXID.authenticateByEmailKey(this.email, accesskey))
+							.then(authCookie => {
+								VTEXID.writeAuthStore(this.account, this.email, authCookie);
+								return authCookie;
+							});
 				})
-				.then(() => prompt({ type: 'input', name: 'accesskey', message: 'Enter the VTEX Access Key (with 6 digits)' }))
-				.then(( { accesskey } ) => VTEXID.authenticateByEmailKey(this.email, accesskey))
 				.then(authCookie => {
 					VTEXCMS = new VtexCMS(this.account, authCookie, site);
-
 					return authCookie;
 				});
 	};
@@ -358,7 +366,7 @@ class Actions {
 	_actionTitle(messageText) {
 
 		console.log('\n*****************************');
-		message('warn', messageText);
+		message('notice', messageText);
 		console.log('*****************************\n');
 	}
 };
