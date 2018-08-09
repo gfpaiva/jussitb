@@ -5,6 +5,7 @@ const message = require('./utils/cli-colors');
 const jsonfile = require('jsonfile');
 
 const DIRNAME = __dirname;
+const PROJECTDIR = process.cwd();
 
 class VtexId {
 	constructor(account = null) {
@@ -25,7 +26,7 @@ class VtexId {
 				accountName: this.account
 			}
 		};
-		this.storeAuthCookiePath = `${DIRNAME}/utils/storeAuthCookie.json`;
+		this.storeAuthCookiePath = `${PROJECTDIR}/jussitb.lock.json`;
 	};
 
 	setAccount(account) {

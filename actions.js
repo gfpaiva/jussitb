@@ -244,7 +244,7 @@ class Actions {
 
 					VTEXID.setAccount(this.account);
 
-					const authStore = VTEXID.checkAuthStore(account, email);
+					const authStore = VTEXID.checkAuthStore(this.account, this.email);
 
 					if(authStore) {
 						VTEXID.setAuthCookie(authStore);
