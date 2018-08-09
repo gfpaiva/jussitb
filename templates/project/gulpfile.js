@@ -244,7 +244,7 @@ gulp.task('styles', ['sassLint'], () => {
 		.pipe( $.util.env.production ? $.postcss([
 			autoprefixer(),
 			flexibility(),
-			cssMqpacker({sort: true}),
+			cssMqpacker(/* {sort: true} */),
 			cssnano({
 				zindex: false,
 				reduceIdents: false
