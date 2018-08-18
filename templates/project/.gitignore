@@ -69,3 +69,6 @@ build/arquivos/**/*
 
 #vscode
 /.vscode
+
+#cache auth
+jussitb.auth.json

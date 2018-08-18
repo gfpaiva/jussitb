@@ -26,7 +26,7 @@ class VtexId {
 				accountName: this.account
 			}
 		};
-		this.storeAuthCookiePath = `${PROJECTDIR}/jussitb.lock.json`;
+		this.storeAuthCookiePath = `${PROJECTDIR}/jussitb.auth.json`;
 	};
 
 	setAccount(account) {
@@ -103,6 +103,11 @@ class VtexId {
 	checkAuthStore(account, email) {
 
 		const storeAuthCookie = jsonfile.readFileSync(this.storeAuthCookiePath, { throws: false });
+
+		if(!storeAuthCookie) {
+			jsonfile.writeFileSync(this.storeAuthCookiePath, {});
+			return false;
+		}
 
 		if(storeAuthCookie[account]
 			&& storeAuthCookie[account][email]
