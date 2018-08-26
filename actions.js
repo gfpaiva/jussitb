@@ -185,7 +185,7 @@ class Actions {
 
 		this._actionTitle('SYNC: creating files');
 
-		return this.authAction(cmd, false)
+		return this.authAction(cmd, false, false)
 			.then(authCookie => {
 
 				const spinner = new Spinner('Processing..');
@@ -217,7 +217,7 @@ class Actions {
 			});
 	}
 
-	authAction( { email = null, account = null, site = 'default' }, checkPath = true ) {
+	authAction( { email = null, account = null, site = 'default' }, checkPath = true, writeAuthStore = true ) {
 
 		if(checkPath) this._checkPath();
 
@@ -255,7 +255,7 @@ class Actions {
 							.then(() => prompt({ type: 'input', name: 'accesskey', message: 'Enter the VTEX Access Key (with 6 digits)' }))
 							.then(( { accesskey } ) => VTEXID.authenticateByEmailKey(this.email, accesskey))
 							.then(authCookie => {
-								VTEXID.writeAuthStore(this.account, this.email, authCookie);
+								if(writeAuthStore) VTEXID.writeAuthStore(this.account, this.email, authCookie);
 								return authCookie;
 							});
 				})

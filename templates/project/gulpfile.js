@@ -252,7 +252,10 @@ gulp.task('styles', ['sassLint'], () => {
 		]) :  $.util.noop())
 		.pipe($.util.env.production ? $.preprocess(preprocessContext) : $.util.noop())
 		.pipe(!$.util.env.production ? $.sourcemaps.write('.') : $.util.noop())
-		.pipe(gulp.dest(paths.dest.default));
+		.pipe(gulp.dest(paths.dest.default))
+		.pipe($.filter(f => /checkout/.test(f.path)))
+		.pipe($.rename(file => file.basename = file.basename.replace('.min', '')))
+		.pipe(gulp.dest(paths.dest.files));
 });
 
 gulp.task('images', () => {
@@ -370,6 +373,8 @@ gulp.task('pages', ['html'], () => {
 gulp.task('gitTag', () => {
 	// FORCE DEPLOY CONFIGS / PRODUCTION
 	$.util.env.production = true;
+
+	if($.util.env.nobump) return gulp.start( 'bump', 'html', 'styles', 'scripts' );
 
 	if( shell.exec('git fetch --tags').code !== 0 ) {
 		shell.echo('Error: Git fetch tags failed');
