@@ -58,8 +58,7 @@ Other utils commands:
 $ jussitb -h
 
 ```
-
-
+___
 
 *Deploy auto provide account and email*
 
@@ -68,9 +67,7 @@ $ jussitb -h
 $ jussitb deploy --account <accountName> --email <email>
 
 ```
-
-
-
+___
 *Force update all files ignoring lockfile*
 
 ```bash
@@ -78,9 +75,7 @@ $ jussitb deploy --account <accountName> --email <email>
 $ jussitb deploy --force
 
 ```
-
-
-
+___
 *Deploy Template Files*
 
 ```bash
@@ -88,9 +83,7 @@ $ jussitb deploy --force
 $ jussitb html
 
 ```
-
-
-
+___
 *Deploy SubTemplate Files*
 
 ```bash
@@ -98,9 +91,7 @@ $ jussitb html
 $ jussitb sub
 
 ```
-
-
-
+___
 *Deploy ShelvesTemplate Files*
 
 ```bash
@@ -108,9 +99,7 @@ $ jussitb sub
 $ jussitb shelf
 
 ```
-
-
-
+___
 *Deploy Assets Files*
 
 ```bash
@@ -124,12 +113,14 @@ $ jussitb assets
 
 Run ``jussitb createProject`` to create a new project folder.
 ![Create Project](https://github.com/gfpaiva/jussitb/blob/master/templates/demo/createProject.gif?raw=true)
+
 Provide a project name, vtex-account and if you want to sync the vtex registered templates,
 
 ___
 
 After a long winter (installing de dependencies) you will be able to run de project with gulp:
 ![Live Reload](https://github.com/gfpaiva/jussitb/blob/master/templates/demo/liveReload.gif?raw=true)
+
 With gulp we run a reverse proxy server to css and js local files, so you can edit and see the changes with live reload.
 And you can work with: ES6, ES6 Modules, SCSS, *Nitro* controllers and modules.
 We highly recommend to make this project a github (private or public) repository
@@ -138,39 +129,41 @@ ___
 
 After all work done, you can deploy your store:
 ![Deploy Project](https://github.com/gfpaiva/jussitb/blob/master/templates/demo/deploy.gif?raw=true)
+
 With ``npm run deploy`` the project will be compiled and deployed in the specific vtex account.
 
 ___
 
 Another npm scripts in your project:
 
+
+Deploy the project after compile the project with all static pages
 ```bash
 
 $ npm run deploy-pages
 
 ```
-Deploy the project after compile the project with all static pages
+___
 
-
-
-
+Create a new Nitro.controller() after provide a controller name
 ```bash
 
 $ npm run create-controller
 
 ```
-Create a new Nitro.controller() after provide a controller name
+___
 
+Create a new Nitro.module() after provide a module name
 ```bash
 
 $ npm run create-module
 
 ```
-Create a new Nitro.module() after provide a module name
+___
 
+Create a new static page folder after provide a controller name
 ```bash
 
 $ npm run create-page
 
 ```
-Create a new static page folder after provide a controller name
