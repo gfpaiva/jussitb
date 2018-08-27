@@ -100,12 +100,12 @@ class VtexId {
 				});
 	};
 
-	checkAuthStore(account, email) {
+	checkAuthStore(account, email, writeAuthStore) {
 
 		const storeAuthCookie = jsonfile.readFileSync(this.storeAuthCookiePath, { throws: false });
 
 		if(!storeAuthCookie) {
-			jsonfile.writeFileSync(this.storeAuthCookiePath, {});
+			if(writeAuthStore) jsonfile.writeFileSync(this.storeAuthCookiePath, {});
 			return false;
 		}
 
