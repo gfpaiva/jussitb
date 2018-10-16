@@ -19,13 +19,15 @@ const
 	fs 				= require('fs'),
 	middlewares 	= require('./middlewares'),
 	url 			= require('url'),
-	secureUrl 		= pkg.secureUrl,
+	secureUrl 		= $.util.env.qa ? false : (pkg.secureUrl ? pkg.secureUrl : true),
+	proxyPort		= process.env.PROXY_PORT || pkg.proxyPort || 80,
 	environment 	= $.util.env.VTEX_HOST || 'vtexcommercestable',
-	accountName 	= $.util.env.account || pkg.accountName,
+	accountName 	= $.util.env.account ? $.util.env.account : ($.util.env.qa ? 'PROJECTACCOUNTNAMEqa' : pkg.accountName),
 	httpPlease 		= require('connect-http-please'),
 	serveStatic 	= require('serve-static'),
 	proxy 			= require('proxy-middleware'),
-	HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+	HardSourceWebpackPlugin = require('hard-source-webpack-plugin'),
+	isProdEnv = () => accountName === 'PROJECTACCOUNTNAME';
 
 const paths = {
 	scripts      : 'src/Scripts/**/*.js',
@@ -220,7 +222,7 @@ gulp.task('scripts', ['lint'], () => {
 			devtool: $.util.env.production ? '' : 'eval-source-map'
 		}))
 		.pipe($.preprocess(preprocessContext))
-		.pipe(gulp.dest(paths.dest.default))
+		.pipe((isProdEnv()) ? gulp.dest(paths.dest.default) : gulp.dest(paths.dest.files))
 		.pipe($.filter(f => /checkout/.test(f.path)))
 		.pipe($.rename(file => file.basename = file.basename.replace('.min', '')))
 		.pipe(gulp.dest(paths.dest.files));
@@ -252,7 +254,7 @@ gulp.task('styles', ['sassLint'], () => {
 		]) :  $.util.noop())
 		.pipe($.util.env.production ? $.preprocess(preprocessContext) : $.util.noop())
 		.pipe(!$.util.env.production ? $.sourcemaps.write('.') : $.util.noop())
-		.pipe(gulp.dest(paths.dest.default))
+		.pipe((isProdEnv()) ? gulp.dest(paths.dest.default) : gulp.dest(paths.dest.files))
 		.pipe($.filter(f => /checkout/.test(f.path)))
 		.pipe($.rename(file => file.basename = file.basename.replace('.min', '')))
 		.pipe(gulp.dest(paths.dest.files));
@@ -277,52 +279,30 @@ gulp.task('clean', () => {
 	return del.sync('build');
 });
 
-gulp.task('connect', () => {
-	if(!secureUrl) return;
-
-	const portalHost         = accountName + '.' + environment + '.com.br',
-		rewriteLocation      = function (location) {
-			return location
-				.replace('https:', 'http:')
-				.replace(environment, 'vtexlocal');
-		};
-
-	let imgProxyOptions    = url.parse('https://' + accountName + '.vteximg.com.br/arquivos'),
-		portalProxyOptions = url.parse('https://' + portalHost + '/');
-
-	imgProxyOptions.route = '/arquivos';
-	portalProxyOptions.preserveHost = true;
-
-	return $.connect.server({
-		host: 'localhost',
-		port: 80,
-		debug: false,
-		middleware: function() {
-			return [
-				middlewares.disableCompression,
-				middlewares.rewriteLocationHeader(rewriteLocation),
-				middlewares.replaceHost(portalHost),
-				middlewares.replaceReferer(portalHost),
-				middlewares.replaceHtmlBody(environment, accountName, secureUrl),
-				httpPlease({
-					host: portalHost
-				}),
-				serveStatic('./build'),
-				proxy(imgProxyOptions),
-				proxy(portalProxyOptions),
-				middlewares.errorHandler
-			];
-		},
-		livereload: false
-	});
-});
-
 gulp.task('server', ['watch'], () => {
 	let htmlFile = null;
 
+	let portalHost         = `${accountName}.${environment}.com.br`,
+		imgProxyOptions    = url.parse(`https://${accountName}.vteximg.com.br/arquivos`),
+		portalProxyOptions = url.parse(`https://${portalHost}/`),
+		localHost          = `${accountName}.vtexlocal.com.br`;
+
+	if(proxyPort !== 80) localHost += `:${proxyPort}`;
+
+	imgProxyOptions.route = '/arquivos';
+	portalProxyOptions.preserveHost = true;
+	portalProxyOptions.cookieRewrite = `${accountName}.vtexlocal.com.br`;
+
+	const rewriteLocation = location => location.replace('https:', 'http:').replace(portalHost, localHost);
+	const rewriteReferer = (referer = '') => {
+		referer = referer.replace('http:', 'https:');
+
+		return referer.replace(localHost, portalHost);
+	};
+
 	bs({
 		files: $.util.env.page ? [] : [ 'build/**', '!build/**/*.map'],
-		startPath: '/admin/Site/Login.aspx?ReturnUrl=%2f%3fdebugcss%3dtrue%26debugjs%3dtrue',
+		startPath: `${secureUrl ? `http://${accountName}.vtexlocal.com.br${proxyPort !== 80 ? `:${proxyPort}` : ''}/?debugcss=true&debugjs=true` : '/admin/Site/Login.aspx?ReturnUrl=%2f%3fdebugcss%3dtrue%26debugjs%3dtrue' }`,
 		rewriteRules: [
 			{
 				match: new RegExp('["\'](?:https?://|//)' + pkg.name + '.*?(/.*?)?["\']', 'gm'),
@@ -330,7 +310,7 @@ gulp.task('server', ['watch'], () => {
 			}
 		],
 		proxy: {
-			target: `${accountName}.${secureUrl ? 'vtexlocal' : environment}.com.br/?debugcss=true&debugjs=true`,
+			target: `${accountName}.${secureUrl ? 'vtexlocal' : environment}.com.br${secureUrl ? `:${proxyPort}` : ''}/?debugcss=true&debugjs=true`,
 			proxyReq: [
 				function (proxyReq) {
 
@@ -343,8 +323,24 @@ gulp.task('server', ['watch'], () => {
 				}
 			]
 		},
+		middleware: secureUrl ? [
+			middlewares.disableCompression,
+			middlewares.rewriteLocationHeader(rewriteLocation),
+			middlewares.replaceHost(portalHost),
+			middlewares.replaceReferer(rewriteReferer),
+			middlewares.replaceHtmlBody(environment, accountName, secureUrl),
+			httpPlease({
+				host: portalHost
+			}),
+			serveStatic('./build'),
+			proxy(imgProxyOptions),
+			proxy(portalProxyOptions),
+			middlewares.errorHandler
+		] : [],
 		serveStatic: ['./build'],
-		open: !$.util.env.page && !$.util.env.no
+		port: proxyPort,
+		open: !$.util.env.page && !$.util.env.no,
+		reloadOnRestart: true
 	});
 
 	if ( $.util.env.page ) htmlFile = fs.readdirSync(`${__dirname}/src/Pages/${$.util.env.page}`).filter(file => /\.html$/.test(file))[0];
@@ -370,18 +366,20 @@ gulp.task('pages', ['html'], () => {
 });
 
 //get last git tag and bump version in package.json
-gulp.task('gitTag', () => {
+gulp.task('gitTag', function() {
 	// FORCE DEPLOY CONFIGS / PRODUCTION
 	$.util.env.production = true;
-
-	if($.util.env.nobump) return gulp.start( 'bump', 'html', 'styles', 'scripts' );
 
 	if( shell.exec('git fetch --tags').code !== 0 ) {
 		shell.echo('Error: Git fetch tags failed');
 		shell.exit(1);
 	}else {
 		shell.exec('git for-each-ref --count=1 --sort=-creatordate --format "%(refname)" refs/tags', function(code, stdout) {
-			pkg.version = stdout.replace('refs/tags/v','').trim();
+			if (isProdEnv()) {
+				pkg.version = stdout.replace('refs/tags/v','').trim();
+			} else {
+				pkg.version = new Date().getTime();
+			}
 
 			preprocessContext = {
 				context: {
@@ -399,7 +397,7 @@ gulp.task('gitTag', () => {
 	}
 });
 
-gulp.task('bump', () => {
+gulp.task('bump', function() {
 
 	return gulp.src('package.json')
 		.pipe($.util.env.nobump ? $.util.noop() : $.bump({ version: pkg.version }))

@@ -5,6 +5,7 @@
 	"author": "Jussi Platform",
 	"private": true,
 	"secureUrl": true,
+	"proxyPort": 3000,
 	"dependencies": {},
 	"devDependencies": {
 		"autoprefixer": "^9.0.1",
@@ -57,8 +58,10 @@
 		"workbox-webpack-plugin": "^3.2.0"
 	},
 	"scripts": {
-		"deploy": "git checkout master && git pull && gulp deploy && node node_modules/jussitb deploy --account PROJECTACCOUNTNAME --pathFiles arquivos",
-		"deploy-pages": "git checkout master && git pull && gulp deploy --page=ALL && node node_modules/jussitb deploy --account PROJECTACCOUNTNAME --pathFiles arquivos",
+		"deploy": "git checkout master && git pull && gulp deploy && node node_modules/jussitb deploy --account PROJECTACCOUNTNAME --pathFiles arquivos && git add . && git commit -m 'deploy prod' && git push",
+		"deploy-pages": "git checkout master && git pull && gulp deploy --page=ALL && node node_modules/jussitb deploy --account PROJECTACCOUNTNAME --pathFiles arquivos && git add . && git commit -m 'deploy prod pages' && git push",
+		"deploy-qa": "git checkout stage && git pull && gulp deploy --qa --nobump && node node_modules/jussitb deploy --account PROJECTACCOUNTNAMEqa --site PROJECTACCOUNTNAMEqa --pathFiles arquivos && git add . && git commit -m 'deploy qa' && git push",
+		"deploy-qa-pages": "git checkout stage && git pull && gulp deploy --qa --page=ALL --nobump && node node_modules/jussitb deploy --account PROJECTACCOUNTNAMEqa --site PROJECTACCOUNTNAMEqa --pathFiles arquivos && git add . && git commit -m 'deploy qa pages' && git push",
 		"create-controller": "node node_modules/jussitb createController",
 		"create-module": "node node_modules/jussitb createModule",
 		"create-page": "node node_modules/jussitb createPage --account PROJECTACCOUNTNAME"

@@ -1,10 +1,13 @@
+const pkg = require('./package.json');
+
 var disableCompression,
 	errorHandler,
 	replaceHost,
 	replaceHtmlBody,
 	replaceReferer,
 	rewriteLocationHeader,
-	ignoreReplace = [/\.js(\?.*)?$/, /\.css(\?.*)?$/, /\.svg(\?.*)?$/, /\.ico(\?.*)?$/, /\.woff(\?.*)?$/, /\.png(\?.*)?$/, /\.jpg(\?.*)?$/, /\.jpeg(\?.*)?$/, /\.gif(\?.*)?$/, /\.pdf(\?.*)?$/];
+	ignoreReplace = [/\.js(\?.*)?$/, /\.css(\?.*)?$/, /\.svg(\?.*)?$/, /\.ico(\?.*)?$/, /\.woff(\?.*)?$/, /\.png(\?.*)?$/, /\.jpg(\?.*)?$/, /\.jpeg(\?.*)?$/, /\.gif(\?.*)?$/, /\.pdf(\?.*)?$/],
+	proxyPort = process.env.PORT || pkg.proxyPort || 80;
 
 replaceHtmlBody = (environment, accountName, secureUrl) => (req, res, next) => {
 
@@ -41,6 +44,10 @@ replaceHtmlBody = (environment, accountName, secureUrl) => (req, res, next) => {
 
 			if (secureUrl) {
 				data = data.replace(new RegExp('https:\/\/' + accountName, 'g'), 'http://' + accountName);
+			}
+
+			if (proxyPort !== 80) {
+				data = data.replace(new RegExp("vtexlocal.com.br\/", "g"), `vtexlocal.com.br:${proxyPort}\/`);
 			}
 		}
 
@@ -87,8 +94,8 @@ replaceHost = host => (req, res, next) => {
 	return next();
 };
 
-replaceReferer = host => (req, res, next) => {
-	req.headers.referer = host;
+replaceReferer = rewriteReferer => (req, res, next) => {
+	req.headers.referer = rewriteReferer(req.headers.referer);
 	return next();
 };
 
