@@ -41,7 +41,7 @@ class VtexCMS {
 				Accept: '*/*',
 				'Cache-Control': 'no-cache',
 			},
-			timeout: 50000
+			timeout: (1000 * 60 * 60)
 		});
 		this.templates = null;
 		this.defaultBar = total => new ProgressBar('uploading [:bar] :percent - :current/:total', {
