@@ -195,8 +195,8 @@ gulp.task('scripts', ['lint'], () => {
 						use: {
 							loader: 'babel-loader?cacheDirectory',
 							options: {
-								presets: ['babel-preset-env'],
-								plugins: ['transform-object-rest-spread']
+								presets: ['@babel/preset-env'],
+								plugins: ['@babel/plugin-proposal-object-rest-spread']
 							}
 						}
 					},
