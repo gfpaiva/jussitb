@@ -436,7 +436,7 @@ gulp.task('watch', [ 'fonts', 'images', 'styles', 'scripts', 'pages'], () => {
 	gulp.watch( getPath('pages'), ['pages']);
 });
 
-gulp.task('default', ['connect', 'clean'], () => {
+gulp.task('default', ['clean'], () => {
 
 	gulp.start( 'server' );
 });
