@@ -35,6 +35,7 @@ class Fs {
 				SUB: project => `${PROJECTDIR}\\${project}\\src\\01 - HTML Templates\\Sub Templates`,
 				SHELF: project => `${PROJECTDIR}\\${project}\\src\\02 - Shelves Templates`,
 				pkg: project => `${PROJECTDIR}\\${project}\\package.json`,
+				gulpTasks: project => `${PROJECTDIR}\\${project}\\gulpTasks`,
 				gulp: project => `${PROJECTDIR}\\${project}\\gulpfile.js`,
 				config: project => `${PROJECTDIR}\\${project}\\config.js`,
 			},
