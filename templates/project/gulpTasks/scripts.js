@@ -4,7 +4,7 @@ module.exports = (gulp, $, _) => {
 	const webpack = require('webpack-stream'),
 		named = require('vinyl-named'),
 		path = require('path'),
-		HardSourceWebpackPlugin = require('hard-source-webpack-plugin');;
+		HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 
 	const lint = () => {
 		return gulp.src(_.getPath('scripts')
@@ -71,7 +71,7 @@ module.exports = (gulp, $, _) => {
 				devtool: $.util.env.production ? '' : 'eval-source-map'
 			}))
 			.pipe($.preprocess(_.preprocessContext))
-			.pipe((isProdEnv()) ? gulp.dest(_.paths.dest.default) : gulp.dest(_.paths.dest.files))
+			.pipe((_.isProdEnv()) ? gulp.dest(_.paths.dest.default) : gulp.dest(_.paths.dest.files))
 			.pipe($.filter(f => /checkout/.test(f.path)))
 			.pipe($.rename(file => file.basename = file.basename.replace('.min', '')))
 			.pipe(gulp.dest(_.paths.dest.files));

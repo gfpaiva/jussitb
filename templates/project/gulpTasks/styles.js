@@ -41,9 +41,9 @@ module.exports = function (gulp, $, _) {
 					reduceIdents: false
 				}),
 			]) : $.util.noop())
-			.pipe($.util.env.production ? $.preprocess(preprocessContext) : $.util.noop())
+			.pipe($.util.env.production ? $.preprocess(_.preprocessContext) : $.util.noop())
 			.pipe(!$.util.env.production ? $.sourcemaps.write('.') : $.util.noop())
-			.pipe((isProdEnv()) ? gulp.dest(_.paths.dest.default) : gulp.dest(_.paths.dest.files))
+			.pipe((_.isProdEnv()) ? gulp.dest(_.paths.dest.default) : gulp.dest(_.paths.dest.files))
 			.pipe($.filter(f => /checkout/.test(f.path)))
 			.pipe($.rename(file => file.basename = file.basename.replace('.min', '')))
 			.pipe(gulp.dest(_.paths.dest.files));
