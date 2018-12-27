@@ -1,6 +1,7 @@
 'use strict';
 
 const { readFile, writeFile, existsSync, mkdirSync, readFileSync, renameSync } = require('fs');
+const path = require('path');
 const ncp = require('ncp').ncp;
 
 ncp.limit = 16;
@@ -13,24 +14,24 @@ class Fs {
 	constructor() {
 
 		this.templatePaths = {
-			controller: `${DIRNAME}/templates/controller/CONTORLLERNAME.js`,
-			module: `${DIRNAME}/templates/module/MODULENAME.js`,
+			controller: path.resolve(DIRNAME, 'templates/controller/CONTORLLERNAME.js'),
+			module: path.resolve(DIRNAME, 'templates/module/MODULENAME.js'),
 			page: {
-				root: `${DIRNAME}/templates/page`,
-				html: `${DIRNAME}/templates/page/0-PAGENAME.html`,
-				script: `${DIRNAME}/templates/page/scripts/PAGENAME.js`,
-				scss: `${DIRNAME}/templates/page/styles/PAGENAME.scss`,
+				root: path.resolve(DIRNAME, 'templates/page'),
+				html: path.resolve(DIRNAME, 'templates/page/0-PAGENAME.html'),
+				script: path.resolve(DIRNAME, 'templates/page/scripts/PAGENAME.js'),
+				scss: path.resolve(DIRNAME, 'templates/page/styles/PAGENAME.scss'),
 			},
-			project: `${DIRNAME}/templates/project`
+			project: path.resolve(DIRNAME, 'templates/project')
 		};
 		this.srcPaths = {
-			controller: `${PROJECTDIR}\\src\\Scripts\\controllers`,
-			module: `${PROJECTDIR}\\src\\Scripts\\modules`,
-			page: `${PROJECTDIR}\\src\\Pages`,
+			controller: path.resolve(PROJECTDIR, 'src/Scripts/controllers'),
+			module: path.resolve(PROJECTDIR, 'src/Scripts/modules'),
+			page: path.resolve(PROJECTDIR, '/src/Pages'),
 			project: {
-				root: `${PROJECTDIR}`,
-				style: project => `${PROJECTDIR}\\${project}\\src\\Styles`,
-				script: project => `${PROJECTDIR}\\${project}\\src\\Scripts`,
+				root: path.resolve(PROJECTDIR),
+				style: project => path.resolve(PROJECTDIR, project, 'src/Styles'),
+				script: project => path.resolve(PROJECTDIR, project, 'src/Scripts'),
 				HTML: project => `${PROJECTDIR}\\${project}\\src\\01 - HTML Templates`,
 				SUB: project => `${PROJECTDIR}\\${project}\\src\\01 - HTML Templates\\Sub Templates`,
 				SHELF: project => `${PROJECTDIR}\\${project}\\src\\02 - Shelves Templates`,
