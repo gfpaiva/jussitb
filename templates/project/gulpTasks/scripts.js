@@ -6,8 +6,8 @@ module.exports = (gulp, $, _) => {
 		path = require('path'),
 		HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 
-	const scripts = done => {
-		gulp.src(_.getPath('webpack'))
+	const scripts = () => {
+		return gulp.src(_.getPath('webpack'))
 			.pipe($.plumber())
 			.pipe(named())
 			.pipe(webpack({
@@ -64,8 +64,6 @@ module.exports = (gulp, $, _) => {
 			.pipe($.filter(f => /checkout/.test(f.path)))
 			.pipe($.rename(file => file.basename = file.basename.replace('.min', '')))
 			.pipe(gulp.dest(_.paths.dest.files));
-
-		done();
 	};
 
 	return gulp.series(_.getTask('scripts.lint'), scripts);

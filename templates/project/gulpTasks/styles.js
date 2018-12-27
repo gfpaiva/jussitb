@@ -6,8 +6,8 @@ module.exports = function (gulp, $, _) {
 		autoprefixer = require('autoprefixer'),
 		flexibility = require('postcss-flexibility');
 
-	const styles = done => {
-		gulp.src(_.getPath('styles'))
+	const styles = () => {
+		return gulp.src(_.getPath('styles'))
 			.pipe($.util.env.page ? $.util.noop() : $.cached('styling'))
 			.pipe($.util.env.page ? $.util.noop() : $.sassPartialsImported('src/Styles/'))
 			.pipe($.plumber())
@@ -37,8 +37,6 @@ module.exports = function (gulp, $, _) {
 			.pipe($.filter(f => /checkout/.test(f.path)))
 			.pipe($.rename(file => file.basename = file.basename.replace('.min', '')))
 			.pipe(gulp.dest(_.paths.dest.files));
-
-		done();
 	};
 
 	return gulp.series(_.getTask('styles.lint'), styles);
