@@ -3,6 +3,7 @@
 let pkg = require('./package.json');
 
 const
+	os				= require('os'),
 	gulp 			= require('gulp'),
 	$ 				= require('gulp-load-plugins')(),
 	del 			= require('del'),
@@ -20,6 +21,8 @@ const
 	serveStatic 	= require('serve-static'),
 	proxy 			= require('proxy-middleware'),
 	isProdEnv = () => accountName === 'PROJECTACCOUNTNAME';
+
+const browser = os.platform() === 'linux' ? 'google-chrome' : 'chrome';
 
 const paths = {
 	scripts      : 'src/Scripts/**/*.js',
@@ -100,21 +103,19 @@ const getPath = source => {
 
 const getTask = (task, helpers) => {
 
-	const _ = { ...helpers };
-
-	_.paths = paths;
-	_.preprocessContext = preprocessContext;
-	_.getPath = getPath;
-	_.pkg = pkg;
-	_.isProdEnv = isProdEnv;
+	const _ = {
+		...helpers,
+		paths,
+		preprocessContext,
+		getPath,
+		pkg,
+		isProdEnv
+	};
 
 	return require('./gulpTasks/' + task)(gulp, $, _);
 };
 
-
-const clean = () => {
-	return del('build');
-};
+const clean = () => del('build');
 
 const predeploy = (done) => {
 	$.util.env.production = true;
@@ -165,9 +166,9 @@ const gitTag = (done) => {
 const watch = (done) => {
 	gulp.watch(getPath('fonts'), gulp.parallel(getTask('fonts')));
 	gulp.watch(getPath('images'), gulp.parallel(getTask('images')));
-	gulp.watch(getPath('styles'), gulp.parallel(getTask('scripts')));
-	gulp.watch(getPath('scripts'), gulp.parallel(getTask('scripts')));
-	gulp.watch(getPath('dust'), gulp.parallel(getTask('scripts')));
+	gulp.watch(getPath('styles'), gulp.parallel(getTask('styles', { getTask })));
+	gulp.watch(getPath('scripts'), gulp.parallel(getTask('scripts', { getTask })));
+	gulp.watch(getPath('dust'), gulp.parallel(getTask('scripts', { getTask })));
 	gulp.watch(getPath('pages'), gulp.parallel(getTask('pages', { getTask })));
 
 	done();
@@ -233,13 +234,18 @@ const server = () => {
 		] : [],
 		serveStatic: ['./build'],
 		port: proxyPort,
-		open: !$.util.env.page && !$.util.env.no,
+		open: false,
 		reloadOnRestart: true
 	});
 
+	const options = {
+		uri: secureUrl ? `http://${accountName}.vtexlocal.com.br:${proxyPort}/?debugcss=true&debugjs=true` : `http://localhost:3000`,
+		app: browser
+	};
+
 	if ($.util.env.page) htmlFile = fs.readdirSync(`${__dirname}/src/Pages/${$.util.env.page}`).filter(file => /\.html$/.test(file))[0];
 
-	return $.util.env.page && bs.create().init({
+	return $.util.env.page ? bs.create().init({
 		files: ['build/**', '!build/**/*.map'],
 		server: {
 			baseDir: ['build']
@@ -248,15 +254,26 @@ const server = () => {
 		port: 3002,
 		startPath: $.util.env.page.indexOf(',') > 0 ? 'pages' : (htmlFile ? `${$.util.env.page}/${htmlFile}` : $.util.env.page),
 		open: !$.util.env.no
-	});
-
+	}) : (!$.util.env.no ? gulp.src(__filename).pipe($.open(options)) : null);
 };
+
+gulp.task('pre-commit-lint', done => {
+	$.util.env.preCommit = true;
+	$.util.env.page = 'ALL';
+
+	gulp.parallel(
+		getTask('styles.lint'),
+		getTask('scripts.lint')
+	);
+
+	done();
+});
 
 gulp.task('watch', gulp.parallel([
 	getTask('fonts'),
 	getTask('images'),
-	getTask('styles'),
-	getTask('scripts'),
+	getTask('styles', { getTask }),
+	getTask('scripts', { getTask }),
 	getTask('pages', { getTask })
 ], watch));
 
@@ -270,9 +287,8 @@ gulp.task('deploy',
 			getTask('fonts'),
 			getTask('images'),
 			getTask('html'),
-			getTask('styles'),
-			getTask('scripts')
+			getTask('styles', { getTask }),
+			getTask('scripts', { getTask })
 		)
 	)
 );
-

@@ -6,18 +6,6 @@ module.exports = function (gulp, $, _) {
 		autoprefixer = require('autoprefixer'),
 		flexibility = require('postcss-flexibility');
 
-	const sassLint = () => {
-		return gulp.src(_.getPath('styles'))
-			.pipe($.cached('sassLinting'))
-			.pipe($.sassLint({
-				options: {
-					'config-file': '.sass-lint.yml'
-				}
-			}))
-			.pipe($.sassLint.format());
-	// .pipe(sassLint.failOnError());
-	};
-
 	const styles = () => {
 		return gulp.src(_.getPath('styles'))
 			.pipe($.util.env.page ? $.util.noop() : $.cached('styling'))
@@ -40,7 +28,9 @@ module.exports = function (gulp, $, _) {
 					zindex: false,
 					reduceIdents: false
 				}),
-			]) : $.util.noop())
+			]) : $.postcss([
+				cssMqpacker(/* {sort: true} */)
+			]))
 			.pipe($.util.env.production ? $.preprocess(_.preprocessContext) : $.util.noop())
 			.pipe(!$.util.env.production ? $.sourcemaps.write('.') : $.util.noop())
 			.pipe((_.isProdEnv()) ? gulp.dest(_.paths.dest.default) : gulp.dest(_.paths.dest.files))
@@ -49,6 +39,5 @@ module.exports = function (gulp, $, _) {
 			.pipe(gulp.dest(_.paths.dest.files));
 	};
 
-
-	return gulp.series(sassLint, styles);
+	return gulp.series(_.getTask('styles.lint'), styles);
 };

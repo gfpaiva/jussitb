@@ -15,7 +15,7 @@ module.exports = {
 		"ecmaVersion": 6,
 		"sourceType": "module",
 		"ecmaFeatures": {
-			"modules": true,
+			"modules": true
 		}
 	},
 	"globals": {
@@ -37,25 +37,25 @@ module.exports = {
 	},
 	"rules": {
 		"eqeqeq": ["error", "smart"],
-		"no-console": [1, {
+		"no-console": [2, {
 			"allow": ["assert", "info", "error"]
 		}],
-		"no-debugger": 1,
+		"no-debugger": 2,
 		"no-undef": ["error", {
 			"typeof": true
 		}],
-		"no-mixed-spaces-and-tabs": 1,
+		"no-mixed-spaces-and-tabs": 2,
 		"no-var": 0,
 		"no-unresolved": 0,
-		"indent": ["warn", "tab"],
+		"indent": ["error", "tab"],
 		"semi": ["error", "always"],
 		"no-trailing-spaces": 0,
 		"eol-last": 0,
-		"no-unused-vars": 1,
+		"no-unused-vars": 2,
 		"no-underscore-dangle": 0,
-		"no-alert": 1,
+		"no-alert": 2,
 		"no-lone-blocks": 0,
-		"jsx-quotes": ["warn", "prefer-single"],
+		"jsx-quotes": ["error", "prefer-single"],
 		"import/no-unresolved": 0
 	}
 };

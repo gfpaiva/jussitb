@@ -6,17 +6,6 @@ module.exports = (gulp, $, _) => {
 		path = require('path'),
 		HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 
-	const lint = () => {
-		return gulp.src(_.getPath('scripts')
-			.concat('!src/Scripts/vendors/*.js')
-			.concat('!src/Scripts/Helpers/helpers.js')
-			.concat('!src/Scripts/modules/vtex/*.js'))
-			.pipe($.cached('jsLinting'))
-			.pipe($.eslint())
-			.pipe($.eslint.format())
-			.pipe($.eslint.failAfterError());
-	};
-
 	const scripts = () => {
 		return gulp.src(_.getPath('webpack'))
 			.pipe($.plumber())
@@ -77,6 +66,5 @@ module.exports = (gulp, $, _) => {
 			.pipe(gulp.dest(_.paths.dest.files));
 	};
 
-
-	return gulp.series(lint, scripts);
+	return gulp.series(_.getTask('scripts.lint'), scripts);
 };
