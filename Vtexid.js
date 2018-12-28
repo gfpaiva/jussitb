@@ -4,6 +4,7 @@ const axios = require('axios');
 const path = require('path');
 const message = require('./utils/cli-colors');
 const jsonfile = require('jsonfile');
+const qs = require('qs');
 
 const DIRNAME = __dirname;
 const PROJECTDIR = process.cwd();
@@ -70,12 +71,10 @@ class VtexId {
 
 	_getEmailAccessKey(email, authenticationToken = this.token) {
 		return axios
-				.get(`${this.uri}${this.endpoints.getEmailAcessKey}`, {
-					params: {
+				.post(`${this.uri}${this.endpoints.getEmailAcessKey}`, qs.stringify({
 						email,
 						authenticationToken
-					}
-				})
+				}))
 				.catch(err => {
 					message('error', err);
 					throw new Error(err);
@@ -84,13 +83,11 @@ class VtexId {
 
 	authenticateByEmailKey(login, accesskey) {
 		return axios
-				.get(`${this.uri}${this.endpoints.authenticateByEmailKey}`, {
-					params: {
+				.post(`${this.uri}${this.endpoints.authenticateByEmailKey}`, qs.stringify({
 						login,
 						accesskey,
 						authenticationToken: this.token
-					}
-				})
+				}))
 				.then(( { data } ) => {
 					this.authCookie = data.authCookie.Value;
 					return data.authCookie.Value;
