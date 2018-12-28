@@ -127,7 +127,7 @@ const predeploy = (done) => {
 const bump = () => {
 
 	return gulp.src('package.json')
-		.pipe($.util.env.nobump ? $.util.noop() : $.bump({ version: pkg.version }))
+		.pipe(isProdEnv() && !$.util.env.nobump ? $.bump({ version: pkg.version }) : $.util.noop())
 		.pipe(gulp.dest('.'));
 };
 
@@ -136,31 +136,31 @@ const gitTag = (done) => {
 	// FORCE DEPLOY CONFIGS / PRODUCTION
 	$.util.env.production = true;
 
-	if (shell.exec('git fetch --tags').code !== 0) {
-		shell.echo('Error: Git fetch tags failed');
-		shell.exit(1);
-	} else {
-		shell.exec('git for-each-ref --count=1 --sort=-creatordate --format "%(refname)" refs/tags', function (code, stdout) {
-			if (isProdEnv()) {
+	if (isProdEnv() && !$.util.env.nobump) {
+		if (shell.exec('git fetch --tags').code !== 0) {
+			shell.echo('Error: Git fetch tags failed');
+			shell.exit(1);
+		} else {
+			shell.exec('git for-each-ref --count=1 --sort=-creatordate --format "%(refname)" refs/tags', function (code, stdout) {
 				pkg.version = stdout.replace('refs/tags/v', '').trim();
-			} else {
-				pkg.version = new Date().getTime();
-			}
 
-			preprocessContext = {
-				context: {
-					...projectConfig[accountName],
-					package: {
-						...pkg
-					},
-					DEBUG: false,
-				}
-			};
+				preprocessContext = {
+					context: {
+						...projectConfig[accountName],
+						package: {
+							...pkg
+						},
+						DEBUG: false,
+					}
+				};
 
-			done();
-		});
+			});
+		}
+	} else {
+		pkg.version = new Date().getTime();
 	}
 
+	done();
 };
 
 const watch = (done) => {
