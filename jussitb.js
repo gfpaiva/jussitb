@@ -6,6 +6,7 @@ const pkg = require('./package.json');
 const program = require('commander');
 const Actions = require('./Actions');
 const { readFileSync, readdirSync } = require('fs');
+const path = require('path');
 
 const message = require('./utils/cli-colors');
 
@@ -112,10 +113,10 @@ program
 		console.log('FILENAME: ', __filename);
 		console.log('PROCESS: ', process.cwd());
 
-		const isRoot = readFileSync(`${PROJECTDIR}/package.json`);
+		const isRoot = readFileSync(path.resolve(PROJECTDIR, 'package.json'));
 
 		try {
-			readdirSync(`${PROJECTDIR}/build`);
+			readdirSync(path.resolve(PROJECTDIR, 'build'));
 		} catch(err) {
 			message('error', 'Plese run in root of the project after build all files');
 

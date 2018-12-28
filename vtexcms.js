@@ -1,6 +1,7 @@
 'use strict';
 
 const { readFile, readdirSync, createReadStream } = require('fs');
+const path = require('path');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const qs = require('qs');
@@ -51,12 +52,12 @@ class VtexCMS {
 			width: 20,
 		});
 		this.localPaths = {
-			lockPath: `${PROJECTDIR}/jussitb.lock.json`,
-			assetsPath: `${PROJECTDIR}/build/files`,
-			defaultAssetsPath: `${PROJECTDIR}/build/arquivos`,
-			shelvesPath: `${PROJECTDIR}/build/shelf`,
-			templatesPath: `${PROJECTDIR}/build/html`,
-			subTemplatesPath: `${PROJECTDIR}/build/html/sub`,
+			lockPath: path.resolve(PROJECTDIR, 'jussitb.lock.json'),
+			assetsPath: path.resolve(PROJECTDIR, 'build/files'),
+			defaultAssetsPath: path.resolve(PROJECTDIR, 'build/arquivos'),
+			shelvesPath: path.resolve(PROJECTDIR, 'build/shelf'),
+			templatesPath: path.resolve(PROJECTDIR, 'build/html'),
+			subTemplatesPath: path.resolve(PROJECTDIR, 'build/html/sub'),
 		};
 	};
 
@@ -84,7 +85,7 @@ class VtexCMS {
 
 		const genPromises = path => {
 			return new Promise((resolve, reject ) => {
-				readFile(`${this.localPaths.assetsPath}/${path}`, 'utf8', (err, text) => {
+				readFile(path.resolve(this.localPaths.assetsPath, path), 'utf8', (err, text) => {
 					if(err) throw new Error(err);
 
 					const templateName = `files/${path}`;
@@ -139,7 +140,7 @@ class VtexCMS {
 		const genPromises = path => {
 			return new Promise((resolve, reject ) => {
 				// const host = this.baseUri.replace(/(http:|https:|\/)/g, '');
-				const filePath = `${this.localPaths.defaultAssetsPath}/${path}`;
+				const filePath = path.resolve(this.localPaths.defaultAssetsPath, path);
 
 				readFile(filePath, 'utf8', (err, text) => {
 					if(err) throw new Error(err);
@@ -350,7 +351,7 @@ class VtexCMS {
 
 		const genPromises = templateName => {
 			return new Promise((resolve, reject ) => {
-				readFile(`${filesDir}/${templateName}`, 'utf8', (err, template) => {
+				readFile(path.resolve(filesDir, templateName), 'utf8', (err, template) => {
 					if(err) {
 						message('error', err);
 						reject(err);
@@ -475,12 +476,11 @@ class VtexCMS {
 
 	/**
 	 * From a full path, get only the file name and extension
-	 * @param  {String} path complete path
+	 * @param  {String} completePath complete path
 	 * @returns {String} File name with extension
 	 */
-	_pathToFileName(path) {
-		let fileName = path.split('\\');
-		return fileName[fileName.length - 1];
+	_pathToFileName(completePath) {
+		return path.basename(completePath);
 	}
 
 	/**

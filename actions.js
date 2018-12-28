@@ -2,6 +2,7 @@
 
 const { prompt } = require('inquirer');
 const { readFileSync, readdirSync } = require('fs');
+const path = require('path');
 const jsonfile = require('jsonfile');
 const Spinner = require('cli-spinner').Spinner;
 const exec = require('child_process').exec;
@@ -40,10 +41,10 @@ class Actions {
 	};
 
 	_checkPath() {
-		const isRoot = readFileSync(`${PROJECTDIR}/package.json`);
+		const isRoot = readFileSync(path.resolve(PROJECTDIR, 'package.json'));
 
 		try {
-			readdirSync(`${PROJECTDIR}/build`);
+			readdirSync(path.resolve(PROJECTDIR, 'build'));
 		} catch(err) {
 			message('error', 'Plese run in root of the project after build all files');
 

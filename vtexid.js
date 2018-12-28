@@ -1,6 +1,7 @@
 'use strict';
 
 const axios = require('axios');
+const path = require('path');
 const message = require('./utils/cli-colors');
 const jsonfile = require('jsonfile');
 
@@ -26,7 +27,7 @@ class VtexId {
 				accountName: this.account
 			}
 		};
-		this.storeAuthCookiePath = `${PROJECTDIR}/jussitb.auth.json`;
+		this.storeAuthCookiePath = path.resolve(PROJECTDIR, 'jussitb.auth.json');
 	};
 
 	setAccount(account) {

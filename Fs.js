@@ -32,12 +32,12 @@ class Fs {
 				root: path.resolve(PROJECTDIR),
 				style: project => path.resolve(PROJECTDIR, project, 'src/Styles'),
 				script: project => path.resolve(PROJECTDIR, project, 'src/Scripts'),
-				HTML: project => `${PROJECTDIR}\\${project}\\src\\01 - HTML Templates`,
-				SUB: project => `${PROJECTDIR}\\${project}\\src\\01 - HTML Templates\\Sub Templates`,
-				SHELF: project => `${PROJECTDIR}\\${project}\\src\\02 - Shelves Templates`,
-				pkg: project => `${PROJECTDIR}\\${project}\\package.json`,
-				gulp: project => `${PROJECTDIR}\\${project}\\gulpfile.js`,
-				config: project => `${PROJECTDIR}\\${project}\\config.js`,
+				HTML: project => path.resolve(PROJECTDIR, project, 'src/01 - HTML Templates'),
+				SUB: project => path.resolve(PROJECTDIR, project, 'src/01 - HTML Templates/Sub Templates'),
+				SHELF: project => path.resolve(PROJECTDIR, project, 'src/02 - Shelves Templates'),
+				pkg: project => path.resolve(PROJECTDIR, project, 'package.json'),
+				gulp: project => path.resolve(PROJECTDIR, project, 'gulpfile.js'),
+				config: project => path.resolve(PROJECTDIR, project, 'config.js'),
 			},
 		};
 	};
@@ -49,7 +49,7 @@ class Fs {
 			readFile(this.templatePaths[type], 'utf8', (err, data) => {
 				if(err) throw new Error(err);
 
-				const createdFile = `${this.srcPaths[type]}\\${name}.js`;
+				const createdFile = path.resolve(this.srcPaths[type], `${name}.js`);
 
 				// if(existsSync(createdFile)) return reject(`File: ${createdFile} alredy exists`);
 
@@ -71,14 +71,14 @@ class Fs {
 
 		return new Promise((resolve) => {
 
-			const pagePath = `${this.srcPaths.page}\\${name}`;
+			const pagePath = path.resolve(this.srcPaths.page, name);
 
 			// if(existsSync(pagePath)) return reject(`Page: ${pagePath} alredy exists`);
 
 			mkdirSync(pagePath);
-			mkdirSync(`${pagePath}\\images`);
-			mkdirSync(`${pagePath}\\scripts`);
-			mkdirSync(`${pagePath}\\styles`);
+			mkdirSync(path.resolve(pagePath, 'images'));
+			mkdirSync(path.resolve(pagePath, 'scripts'));
+			mkdirSync(path.resolve(pagePath, 'styles'));
 
 			const htmlFile = readFileSync(this.templatePaths.page.html, 'utf8')
 								.replace(/PAGENAME/gm, name)
@@ -90,9 +90,9 @@ class Fs {
 
 			const ScssFile = readFileSync(this.templatePaths.page.scss, 'utf8').replace(/PAGENAME/gm, name);
 
-			this._writeFilePromise(`${pagePath}\\0-${name}.html`, htmlFile)
-				.then(() => this._writeFilePromise(`${pagePath}\\scripts\\${name}.js`, JsFile))
-				.then(() => this._writeFilePromise(`${pagePath}\\styles\\${name}.scss`, ScssFile))
+			this._writeFilePromise(path.resolve(pagePath, `0-${name}.html`), htmlFile)
+				.then(() => this._writeFilePromise(path.resolve(pagePath, `scripts/${name}.js`), JsFile))
+				.then(() => this._writeFilePromise(path.resolve(pagePath, `styles/${name}.scss`), ScssFile))
 				.then(() => resolve(pagePath));
 		});
 	}
@@ -101,7 +101,7 @@ class Fs {
 
 		return new Promise((resolve) => {
 
-			const projectPath = `${this.srcPaths.project.root}\\${name}`;
+			const projectPath = path.resolve(this.srcPaths.project.root, name);
 
 			mkdirSync(projectPath);
 
@@ -111,8 +111,15 @@ class Fs {
 
 			this._copyPastePromise(this.templatePaths.project, projectPath)
 				.then(() => {
-					renameSync(`${this.srcPaths.project.style(name)}\\PROJECTACCOUNTNAME-style.scss`, `${this.srcPaths.project.style(name)}\\${account}-style.scss`);
-					renameSync(`${this.srcPaths.project.script(name)}\\PROJECTACCOUNTNAME-app.js`, `${this.srcPaths.project.script(name)}\\${account}-app.js`);
+					renameSync(
+						path.resolve(this.srcPaths.project.style(name), 'PROJECTACCOUNTNAME-style.scss'),
+						path.resolve(this.srcPaths.project.style(name), `${account}-style.scss`
+					));
+
+					renameSync(
+						path.resolve(this.srcPaths.project.script(name), 'PROJECTACCOUNTNAME-app.js'),
+						path.resolve(this.srcPaths.project.script(name), `${account}-app.js`
+					));
 
 					return;
 				})
@@ -132,7 +139,7 @@ class Fs {
 
 	createProjectHTML(templateList, templateType, projectFolderName) {
 
-		return templateList.map(template => this._writeFilePromise(`${this.srcPaths.project[templateType](projectFolderName)}\\${template}.html`, ''));
+		return templateList.map(template => this._writeFilePromise(path.resolve(this.srcPaths.project[templateType](projectFolderName), `${template}.html`), ''));
 	}
 
 	fillProjectHTML(contents) {
@@ -166,7 +173,9 @@ class Fs {
 
 		return new Promise((resolve, reject) => {
 
-			const createdFile = type === 'page' ? `${this.srcPaths.page}\\${cmd.name}` : (type === 'project' ? `${this.srcPaths.project.root}\\${cmd.name}` :`${this.srcPaths[type]}\\${cmd.name}.js`);
+			const createdFile = type === 'page' ?
+				path.resolve(this.srcPaths.page, cmd.name) :
+				(type === 'project' ? path.resolve(this.srcPaths.project.root, cmd.name) : path.resolve(this.srcPaths[type], `${cmd.name}.js`));
 
 			if(existsSync(createdFile)) return reject(`${createdFile} alredy exists`);
 
