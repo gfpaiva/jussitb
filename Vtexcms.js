@@ -83,12 +83,12 @@ class VtexCMS {
 
 		bar.tick(0);
 
-		const genPromises = path => {
+		const genPromises = Cpath => {
 			return new Promise((resolve, reject ) => {
-				readFile(path.resolve(this.localPaths.assetsPath, path), 'utf8', (err, text) => {
+				readFile(path.resolve(this.localPaths.assetsPath, Cpath), 'utf8', (err, text) => {
 					if(err) throw new Error(err);
 
-					const templateName = `files/${path}`;
+					const templateName = `files/${Cpath}`;
 
 					if( this._checkUpload(text, templateName, force, account, lock) ) {
 						bar.tick();
@@ -96,8 +96,8 @@ class VtexCMS {
 					};
 
 					this.AXIOS
-						.put(`${this.endpoints.setAsset}/${path}`, {
-							path,
+						.put(`${this.endpoints.setAsset}/${Cpath}`, {
+							path: Cpath,
 							text
 						})
 						.then(( { data } ) => {
@@ -109,7 +109,7 @@ class VtexCMS {
 								content: md5(text),
 								type: 'success'
 							});
-							// resolve(path);
+							// resolve(Cpath);
 						})
 						.catch(err => {
 							message('error', `Upload File error ${err}`)
@@ -137,23 +137,23 @@ class VtexCMS {
 
 		bar.tick(0);
 
-		const genPromises = path => {
+		const genPromises = Cpath => {
 			return new Promise((resolve, reject ) => {
 				// const host = this.baseUri.replace(/(http:|https:|\/)/g, '');
-				const filePath = path.resolve(this.localPaths.defaultAssetsPath, path);
+				const filePath = path.resolve(this.localPaths.defaultAssetsPath, Cpath);
 
 				readFile(filePath, 'utf8', (err, text) => {
 					if(err) throw new Error(err);
 
 					const form = new FormData();
-					const templateName = `arquivos/${path}`;
+					const templateName = `arquivos/${Cpath}`;
 
 					if( this._checkUpload(text, templateName, force, account, lock) ) {
 						bar.tick();
 						return resolve({ templateName, account, type: 'notice' });
 					};
 
-					form.append('Filename', path);
+					form.append('Filename', Cpath);
 					form.append('fileext', '*.js;*.css');
 					form.append('requestToken', requestToken);
 					form.append('folder', '/uploads');
@@ -535,7 +535,7 @@ class VtexCMS {
 			const err = JSON.parse($('applicationexceptionobject').text());
 
 			message('error', `Error on upload HTML Template (${templateName}): ${err.message}`);
-			reject(err);
+			message('error', err);
 		} else {
 			bar.tick();
 		}
