@@ -27,7 +27,7 @@ class Fs {
 		this.srcPaths = {
 			controller: path.resolve(PROJECTDIR, 'src/Scripts/controllers'),
 			module: path.resolve(PROJECTDIR, 'src/Scripts/modules'),
-			page: path.resolve(PROJECTDIR, '/src/Pages'),
+			page: path.resolve(PROJECTDIR, 'src/Pages'),
 			project: {
 				root: path.resolve(PROJECTDIR),
 				style: project => path.resolve(PROJECTDIR, project, 'src/Styles'),
