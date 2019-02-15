@@ -119,6 +119,7 @@ const clean = () => del('build');
 
 const predeploy = (done) => {
 	$.util.env.production = true;
+	preprocessContext.context.DEBUG = false;
 	pkg = JSON.parse(require('fs').readFileSync('./package.json')); //fix update pkg from bump
 
 	done();
@@ -140,6 +141,7 @@ const gitTag = (done) => {
 		if (shell.exec('git fetch --tags').code !== 0) {
 			shell.echo('Error: Git fetch tags failed');
 			shell.exit(1);
+			done();
 		} else {
 			shell.exec('git for-each-ref --count=1 --sort=-creatordate --format "%(refname)" refs/tags', function (code, stdout) {
 				pkg.version = stdout.replace('refs/tags/v', '').trim();
@@ -153,14 +155,15 @@ const gitTag = (done) => {
 						DEBUG: false,
 					}
 				};
+				done();
 
 			});
 		}
 	} else {
 		pkg.version = new Date().getTime();
+		done();
 	}
 
-	done();
 };
 
 const watch = (done) => {

@@ -23,6 +23,7 @@ module.exports = function (gulp, $, _) {
 		}
 
 		if ($.util.env.production) {
+			_.preprocessContext.context.DEBUG = false;
 			templates();
 			sub();
 			shelves();
