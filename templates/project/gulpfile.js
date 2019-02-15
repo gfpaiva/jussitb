@@ -272,6 +272,8 @@ gulp.task('pre-commit-lint', done => {
 	done();
 });
 
+gulp.task('icons', getTask('icons'));
+
 gulp.task('watch', gulp.parallel([
 	getTask('fonts'),
 	getTask('images'),
