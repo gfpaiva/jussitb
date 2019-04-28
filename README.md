@@ -1,5 +1,7 @@
 # jussitb
 
+[![NPM](https://nodei.co/npm/jussitb.png)](https://nodei.co/npm/jussitb/)
+
 CLI Utils for:
 
  - Deploy files and templates on VTEX CMS
