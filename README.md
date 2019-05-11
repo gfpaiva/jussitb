@@ -1,6 +1,6 @@
 # jussitb
 
-[![NPM](https://nodei.co/npm/jussitb.png)](https://nodei.co/npm/jussitb/)
+[![NPM](https://nodei.co/npm/jussitb.png)](https://nodei.co/npm/jussitb/) ![npm](https://img.shields.io/npm/dt/jussitb.svg)
 
 CLI Utils for:
 
