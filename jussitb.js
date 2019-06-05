@@ -6,12 +6,16 @@ const pkg = require('./package.json');
 const program = require('commander');
 const Actions = require('./Actions');
 const { readFileSync, readdirSync } = require('fs');
+const updateNotifier = require('update-notifier');
+
 const path = require('path');
 
 const message = require('./utils/cli-colors');
 
 const ACTIONS = new Actions();
 const PROJECTDIR = process.cwd();
+
+updateNotifier({pkg}).notify();
 
 // init CLI
 program

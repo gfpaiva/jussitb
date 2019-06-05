@@ -28,18 +28,19 @@
   "license": "MIT",
   "preferGlobal": true,
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.19.0",
     "cheerio": "^1.0.0-rc.2",
     "cli-color": "^1.4.0",
-    "cli-spinner": "^0.2.8",
-    "commander": "^2.19.0",
+    "cli-spinner": "^0.2.10",
+    "commander": "^2.20.0",
     "decode-html": "^2.0.0",
     "form-data": "^2.3.3",
-    "inquirer": "^6.2.1",
+    "inquirer": "^6.3.1",
     "jsonfile": "^5.0.0",
     "md5": "^2.2.1",
     "ncp": "^2.0.0",
     "progress": "^2.0.3",
-    "qs": "^6.6.0"
+    "qs": "^6.7.0",
+    "update-notifier": "^3.0.0"
   }
 }
