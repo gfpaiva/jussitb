@@ -3,9 +3,22 @@
   "version": "1.4.2",
   "description": "CLI VTEX utils",
   "main": "jussitb.js",
-  "author": "Guilherme Paiva <gf.paiva@yahoo.com.br>",
-  "repository": "gfpaiva/jussitb",
-  "homepage": "https://github.com/gfpaiva/jussitb",
+  "bin": {
+    "jussitb": "jussitb.js"
+  },
+  "author": {
+    "name": "Guilherme Paiva",
+    "url": "https://guilherme.dev/",
+    "email": "gf.paiva@yahoo.com.br"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gfpaiva/jussitb.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gfpaiva/jussitb/issues"
+  },
+  "homepage": "https://github.com/gfpaiva/jussitb/blob/master/README.md",
   "keywords": [
     "jussitb",
     "jussi",
@@ -14,9 +27,6 @@
   ],
   "license": "MIT",
   "preferGlobal": true,
-  "bin": {
-    "jussitb": "./jussitb.js"
-  },
   "dependencies": {
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
