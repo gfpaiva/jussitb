@@ -1,3 +1,6 @@
+# Finder configuration files (Mac).
+.DS_Store
+
 # Logs
 logs
 *.log
@@ -38,6 +41,7 @@ jspm_packages/
 
 # Typescript v1 declaration files
 typings/
+types/
 
 # Optional npm cache directory
 .npm
@@ -57,3 +61,5 @@ typings/
 # dotenv environment variables file
 .env
 
+# Generated sources & type definitions.
+lib/
