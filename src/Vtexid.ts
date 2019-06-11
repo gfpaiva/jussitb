@@ -1,6 +1,6 @@
 'use strict';
 
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse, AxiosError } from 'axios';
 import path from 'path';
 import jsonfile from 'jsonfile';
 import qs from 'qs';
@@ -28,11 +28,11 @@ export default class VtexId {
 						email,
 						authenticationToken
 				}))
-				.catch(err => {
-					message(ColorType.error, `Cannot send the e-mail with access token. ${err}`);
+				.catch((err:AxiosError) => {
+					message(ColorType.error, `Cannot send the e-mail with access token. ${err.message}`);
 					throw new Error();
 				});
-	};
+	}
 	/**
 	* Check if the storage auth token has less than 8 hours.
 	*/
@@ -60,7 +60,7 @@ export default class VtexId {
 			}
 		};
 		this.storeAuthCookiePath = path.resolve(PROJECTDIR, 'jussitb.auth.json');
-	};
+	}
 
 	/**
 	* Account setter. Also set the URI with account
@@ -68,14 +68,14 @@ export default class VtexId {
 	setAccount(account:string):void {
 		this.account = account;
 		this.uri = `http://${account}.vtexcommercestable.com.br/api/vtexid/pub/authentication`;
-	};
+	}
 
 	/**
 	* AuthCookie setter
 	*/
 	setAuthCookie(authCookie:string):void {
 		this.authCookie = authCookie;
-	};
+	}
 
 	/**
 	* HTTP Call '/start' to get the initial AuthToken to make another calls in VTEXID
@@ -93,10 +93,10 @@ export default class VtexId {
 			this.token = data.authenticationToken;
 			return data.authenticationToken;
 		} catch(err) {
-			message(ColorType.error, `Cannot get VTEXID Token to start the login logic. ${err}`);
+			message(ColorType.error, `Cannot get VTEXID Token to start the login logic. ${err.message}`);
 			throw new Error();
 		}
-	};
+	}
 
 	/**
 	* HTTP Call '_getEmailAccessKey' to send the e-mail with accessKey after checks if initial token exists (if not get the token)
@@ -104,7 +104,7 @@ export default class VtexId {
 	async getEmailAccessKey(email:string):Promise<AxiosResponse<{}>> {
 		if(!this.token) await this.getToken();
 		return this._getEmailAccessKey(email);
-	};
+	}
 
 	/**
 	* HTTP Call '/accesskey/validate' to validate
@@ -121,10 +121,10 @@ export default class VtexId {
 			this.authCookie = data.authCookie.Value;
 			return data.authCookie.Value;
 		} catch(err) {
-			message(ColorType.error, err);
+			message(ColorType.error, `Cannot authenticate in VTEX (probably typed a wrong access key). ${err.message}`);
 			throw new Error();
 		}
-	};
+	}
 
 	/**
 	* Check if alredy have a AuthCookie stored in 'jussitb.auth.json' and has a valid date to return it or not

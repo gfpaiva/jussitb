@@ -1,188 +1,35 @@
 'use strict';
 
-const { prompt } = require('inquirer');
-const { readFileSync, readdirSync } = require('fs');
-const path = require('path');
-const jsonfile = require('jsonfile');
-const Spinner = require('cli-spinner').Spinner;
-const exec = require('child_process').exec;
+import { prompt, Question } from 'inquirer';
+import { readFileSync, readdirSync } from 'fs';
+import { Spinner } from 'cli-spinner';
+import { exec } from 'child_process';
+import path from 'path';
+import jsonfile from 'jsonfile';
 
-const message = require('./utils/cli-colors');
-const VtexId = require('./Vtexid');
-const VtexCMS = require('./Vtexcms');
-const Fs = require('./Fs');
+import message, { ColorType } from './utils/cli-colors';
+import VtexId from './Vtexid';
+import VtexCMS from './Vtexcms';
+import Fs from './Fs';
+import { CommanderArgs } from './utils/Interfaces';
 
 const PROJECTDIR = process.cwd();
 const VTEXID = new VtexId();
 const FS = new Fs();
-let VTEXCMS = null;
+let VTEXCMS;
 
-let fileOverview = [ { type: 'input', name: 'overview', message: 'Description of the file' } ];
+let fileOverview:Question[] = [ { type: 'input', name: 'overview', message: 'Description of the file' } ];
 
-class Actions {
-	constructor() {
-		this.account = null;
-		this.email = null;
-		this.localPaths = {
-			lockPath: path.resolve(PROJECTDIR, 'jussitb.lock.json'),
-		};
-
-		// \/ Just to maintain the scope
-		this.authAction = this.authAction.bind(this);
-		this.uploadAssetsAction = this.uploadAssetsAction.bind(this);
-		this.uploadDefaultAssetsAction = this.uploadDefaultAssetsAction.bind(this);
-		this.uploadHTMLAction = this.uploadHTMLAction.bind(this);
-		this.uploadSubHTMLAction = this.uploadSubHTMLAction.bind(this);
-		this.uploadShelfAction = this.uploadShelfAction.bind(this);
-		this.createController = this.createController.bind(this);
-		this.createModule = this.createModule.bind(this);
-		this.createPage = this.createPage.bind(this);
-		this.createProject = this.createProject.bind(this);
-	};
-
-	_checkPath() {
-		const isRoot = readFileSync(path.resolve(PROJECTDIR, 'package.json'));
-
-		try {
-			readdirSync(path.resolve(PROJECTDIR, 'build'));
-		} catch(err) {
-			message('error', 'Plese run in root of the project after build all files');
-
-			throw new Error(err);
-		}
-
-		if(!isRoot) {
-			message('error', 'Plese run in root of the project after build all files');
-
-			throw new Error(err);
-		}
-	}
-
-	_createFileQuestions(type) {
+export default class Actions {
+	private account:string
+	private email:string;
+	private localPaths:{lockPath:string};
+	private _createFileQuestions(nameOf:string):Question[] {
 		return [
-			{ type: 'input', name: 'name', message: `Enter the name of the ${type}` }
+			{ type: 'input', name: 'name', message: `Enter the name of the ${nameOf}` }
 		];
 	}
-
-	createController() {
-
-		const questions = this._createFileQuestions('controller');
-		let totalCmd = {};
-
-		return prompt(questions)
-				.then((res) => FS.checkCreate(res, 'controller'))
-				.then((res) => totalCmd = res)
-				.then(() => prompt(fileOverview))
-				.then(res => {
-					totalCmd = {
-						...totalCmd,
-						...res
-					}
-
-					return totalCmd;
-				})
-				.then(cmd => FS.createJsFile(cmd, 'controller'))
-				.then(file => message('success', `${file} has been created`))
-				.catch(err => message('error', `Error on create controller file: ${err}`));
-	}
-
-	createModule() {
-
-		const questions = this._createFileQuestions('module');
-		let totalCmd = {};
-
-		return prompt(questions)
-				.then((res) => FS.checkCreate(res, 'module'))
-				.then((res) => totalCmd = res)
-				.then(() => prompt(fileOverview))
-				.then(res => {
-					totalCmd = {
-						...totalCmd,
-						...res
-					}
-
-					return totalCmd;
-				})
-				.then(cmd => FS.createJsFile(cmd, 'module'))
-				.then(file => message('success', `${file} has been created`))
-				.catch(err => message('error', `Error on create module file: ${err}`));
-	}
-
-	createPage( { account = null } ) {
-
-		const questions = this._createFileQuestions('page');
-		let totalCmd = {};
-
-		return prompt(questions)
-				.then((res) => FS.checkCreate(res, 'page'))
-				.then((res) => totalCmd = res)
-				.then(() => {
-					if(!account) {
-						fileOverview.push({ type: 'input', name: 'account', message: 'Enter the VTEX account' });
-					} else {
-						totalCmd.account = account;
-					}
-
-					return prompt(fileOverview)
-				})
-				.then(res => {
-					totalCmd = {
-						...totalCmd,
-						...res
-					}
-
-					return totalCmd;
-				})
-				.then(cmd => FS.createPage(cmd))
-				.then(file => message('success', `${file} has been created`))
-				.catch(err => message('error', `Error on create page: ${err}`));
-	}
-
-	createProject( { account = null } ) {
-
-		const questions = this._createFileQuestions('project');
-		let totalCmd = {};
-
-		return prompt(questions)
-				.then((res) => FS.checkCreate(res, 'project'))
-				.then((res) => totalCmd = res)
-				.then(() => {
-					let newQuestions = [];
-
-					if(!account) {
-						newQuestions.push({ type: 'input', name: 'account', message: 'Enter the VTEX account' });
-					} else {
-						totalCmd.account = account;
-					}
-
-					newQuestions.push({ type: 'confirm', name: 'sync', message: 'Want to sync the platform templates?' })
-
-					return prompt(newQuestions)
-				})
-				.then(res => {
-					totalCmd = {
-						...totalCmd,
-						...res
-					}
-
-					return totalCmd;
-				})
-				.then(cmd => FS.createProject(cmd))
-				.then(project => message('success', `${project} has been created`))
-				.then(() => {
-					if(totalCmd.sync) return this.createHTMLLocalFiles(totalCmd);
-					return true;
-				})
-				.then(() => {
-					this._actionTitle('Installing Dependencies');
-					const child = exec(`cd ${totalCmd.name} && npm install`).stderr.pipe(process.stderr);
-
-					return true;
-				})
-				.catch(err => message('error', `Error on create project: ${err}`));
-	}
-
-	createHTMLLocalFiles(cmd) {
+	private _createHTMLLocalFiles(cmd:CommanderArgs) {
 
 		this._actionTitle('SYNC: creating files');
 
@@ -217,10 +64,126 @@ class Actions {
 						});
 			});
 	}
+	private _actionTitle(messageText:string) {
+
+		console.log('\n*****************************');
+		message(ColorType.notice, messageText);
+		console.log('*****************************\n');
+	}
+
+	constructor() {
+		this.account = '';
+		this.email = '';
+		this.localPaths = {
+			lockPath: path.resolve(PROJECTDIR, 'jussitb.lock.json'),
+		};
+
+		// \/ Just to maintain the scope
+		this.authAction = this.authAction.bind(this);
+		this.uploadAssetsAction = this.uploadAssetsAction.bind(this);
+		this.uploadDefaultAssetsAction = this.uploadDefaultAssetsAction.bind(this);
+		this.uploadHTMLAction = this.uploadHTMLAction.bind(this);
+		this.uploadSubHTMLAction = this.uploadSubHTMLAction.bind(this);
+		this.uploadShelfAction = this.uploadShelfAction.bind(this);
+		this.createStatic = this.createStatic.bind(this);
+		this.createProject = this.createProject.bind(this);
+	};
+
+	checkPath() {
+		const isRoot = readFileSync(path.resolve(PROJECTDIR, 'package.json'));
+
+		try {
+			readdirSync(path.resolve(PROJECTDIR, 'build'));
+		} catch(err) {
+			message(ColorType.error, `Plese run in root of the project after build all files. ${err.message}`);
+			throw new Error();
+		}
+
+		if(!isRoot) {
+			message(ColorType.error, 'Plese run in root of the project after build all files');
+			throw new Error();
+		}
+	}
+
+	async createStatic(type:string, { account = '' }:CommanderArgs):Promise<void> {
+		const questions = this._createFileQuestions(type);
+		let totalCmd:{account?:string} = {};
+
+		try {
+			const initialQuestionsRes = await prompt(questions);
+
+			await FS.checkCreate(initialQuestionsRes, type);
+
+			if(type === 'page') {
+				if(!account) {
+					fileOverview.push({ type: 'input', name: 'account', message: 'Enter the VTEX account' });
+				} else {
+					totalCmd.account = account;
+				}
+			}
+
+			const totalQuestionsRes = await prompt(fileOverview);
+			totalCmd = {
+				...totalCmd,
+				...initialQuestionsRes,
+				...totalQuestionsRes
+			};
+
+			const file = await FS.createJsFile(totalCmd, type);
+			message(ColorType.success, `${file} has been created`);
+		} catch (err) {
+			message(ColorType.error, `Error on create ${type} file: ${err.message}`);
+			throw new Error();
+		}
+	}
+
+	createProject( { account = null } ) {
+
+		const questions = this._createFileQuestions('project');
+		let totalCmd = {};
+
+		return prompt(questions)
+				.then((res) => FS.checkCreate(res, 'project'))
+				.then((res) => totalCmd = res)
+				.then(() => {
+					let newQuestions = [];
+
+					if(!account) {
+						newQuestions.push({ type: 'input', name: 'account', message: 'Enter the VTEX account' });
+					} else {
+						totalCmd.account = account;
+					}
+
+					newQuestions.push({ type: 'confirm', name: 'sync', message: 'Want to sync the platform templates?' })
+
+					return prompt(newQuestions)
+				})
+				.then(res => {
+					totalCmd = {
+						...totalCmd,
+						...res
+					}
+
+					return totalCmd;
+				})
+				.then(cmd => FS.createProject(cmd))
+				.then(project => message('success', `${project} has been created`))
+				.then(() => {
+					if(totalCmd.sync) return this._createHTMLLocalFiles(totalCmd);
+					return true;
+				})
+				.then(() => {
+					this._actionTitle('Installing Dependencies');
+					const child = exec(`cd ${totalCmd.name} && npm install`).stderr.pipe(process.stderr);
+
+					return true;
+				})
+				.catch(err => message('error', `Error on create project: ${err}`));
+	}
 
 	authAction( { email = null, account = null, site = 'default' }, checkPath = true, writeAuthStore = true ) {
 
-		if(checkPath) this._checkPath();
+		if(checkPath) this.checkPath();
 
 		if(VTEXID.authCookie) return Promise.resolve(VTEXID.authCookie);
 
@@ -363,13 +326,4 @@ class Actions {
 			jsonfile.writeFileSync(this.localPaths.lockPath, newLock, {spaces: 4});
 		});
 	};
-
-	_actionTitle(messageText) {
-
-		console.log('\n*****************************');
-		message('notice', messageText);
-		console.log('*****************************\n');
-	}
 };
-
-module.exports = Actions;

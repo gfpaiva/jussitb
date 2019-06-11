@@ -2,13 +2,14 @@
 
 'use strict';
 
-const pkg = require('./package.json');
-const program = require('commander');
-const Actions = require('./Actions');
-const { readFileSync, readdirSync } = require('fs');
-const path = require('path');
+import pkg from '../package.json';
+import program from 'commander';
+import { readFileSync, readdirSync } from 'fs';
+import path from 'path';
 
-const message = require('./utils/cli-colors');
+import { CommanderArgs } from './utils/Interfaces'
+import Actions from './Actions';
+import message, { ColorType } from './utils/cli-colors';
 
 const ACTIONS = new Actions();
 const PROJECTDIR = process.cwd();
@@ -69,36 +70,30 @@ program
 	.option('--site <site>', 'Set the site for upload on portal ("default" if not provide)')
 	.option('--pathFiles <path>', 'Set the location to upload assets: "files" or "arquivos"')
 	.option('--force', 'Force update all files and templates')
-	.action(cmd => {
-		if( cmd && cmd.pathFiles && cmd.pathFiles === 'arquivos' ) {
-			ACTIONS.uploadAssetsAction(cmd)
-					.then(ACTIONS.uploadDefaultAssetsAction)
-					.then(ACTIONS.uploadSubHTMLAction)
-					.then(ACTIONS.uploadHTMLAction)
-					.then(ACTIONS.uploadShelfAction);
-		} else {
-			ACTIONS.uploadAssetsAction(cmd)
-					.then(ACTIONS.uploadSubHTMLAction)
-					.then(ACTIONS.uploadHTMLAction)
-					.then(ACTIONS.uploadShelfAction);
-		}
+	.action(async (cmd:CommanderArgs) => {
+
+		await ACTIONS.uploadAssetsAction(cmd);
+		if(cmd && cmd.pathFiles && cmd.pathFiles === 'arquivos') await ACTIONS.uploadDefaultAssetsAction(cmd);
+		await ACTIONS.uploadSubHTMLAction(cmd);
+		await ACTIONS.uploadHTMLAction(cmd);
+		await ACTIONS.uploadShelfAction(cmd);
 	});
 
 program
 	.command('createController')
 	.description('Create a new Nitro Controller in project structure')
-	.action(ACTIONS.createController);
+	.action(ACTIONS.createStatic.bind(ACTIONS, 'controller'));
 
 program
 	.command('createModule')
 	.description('Create a new Nitro Module in project structure')
-	.action(ACTIONS.createModule);
+	.action(ACTIONS.createStatic.bind(ACTIONS, 'module'));
 
 program
 	.command('createPage')
 	.option('--account <account>', 'Set the VTEX project/account name')
 	.description('Create a new Page in project structure')
-	.action(ACTIONS.createPage);
+	.action((cmd:CommanderArgs) => ACTIONS.createStatic('page', cmd));
 
 program
 	.command('createProject')
@@ -113,21 +108,7 @@ program
 		console.log('FILENAME: ', __filename);
 		console.log('PROCESS: ', process.cwd());
 
-		const isRoot = readFileSync(path.resolve(PROJECTDIR, 'package.json'));
-
-		try {
-			readdirSync(path.resolve(PROJECTDIR, 'build'));
-		} catch(err) {
-			message('error', 'Plese run in root of the project after build all files');
-
-			throw new Error(err);
-		}
-
-		if(!isRoot) {
-			message('error', 'Plese run in root of the project after build all files');
-
-			throw new Error(err);
-		}
+		ACTIONS.checkPath();
 	});
 
 program.parse(process.argv);

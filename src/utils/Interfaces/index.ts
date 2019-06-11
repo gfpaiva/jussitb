@@ -44,3 +44,12 @@ export interface VtexIDValidateResponse {
 		Value:string
 	}
 }
+
+/* COMMANDER */
+export interface CommanderArgs {
+	account:string,
+	email:string,
+	site:string,
+	pathFiles:string,
+	force:boolean
+}

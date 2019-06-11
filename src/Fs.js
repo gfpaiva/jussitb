@@ -170,7 +170,7 @@ class Fs {
 		});
 	};
 
-	checkCreate( cmd, type ) {
+	checkCreate(cmd, type) {
 
 		return new Promise((resolve, reject) => {
 
