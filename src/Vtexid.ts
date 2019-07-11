@@ -12,10 +12,10 @@ const DIRNAME = __dirname;
 const PROJECTDIR = process.cwd();
 
 export default class VtexId {
+	public authCookie:string;
 	private account:string;
 	private uri:string;
 	private token:string;
-	private authCookie:string;
 	private endpoints:VtexIDEndpoints;
 	private userInfos:VteIDUserInfos;
 	private storeAuthCookiePath:string;

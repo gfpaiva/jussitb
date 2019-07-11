@@ -60,7 +60,7 @@ export default class Actions {
 
 						.then(() => {
 							spinner.stop(true);
-							message('success', 'HTML Templates has been created');
+							message(ColorType.success, 'HTML Templates has been created');
 						});
 			});
 	}
@@ -181,7 +181,7 @@ export default class Actions {
 				.catch(err => message('error', `Error on create project: ${err}`));
 	}
 
-	authAction( { email = null, account = null, site = 'default' }, checkPath = true, writeAuthStore = true ) {
+	authAction( { email = '', account = '', site = 'default' }, checkPath = true, writeAuthStore = true ) {
 
 		if(checkPath) this.checkPath();
 
