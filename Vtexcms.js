@@ -452,7 +452,13 @@ class VtexCMS {
 	 */
 	_getTemplateId($, templateName) {
 
-		const currTemplate = $(`.template div:contains("${templateName}")`).next('a').attr('href');
+		const listMatch = $(`.template div:contains("${templateName}")`);
+
+		var match = listMatch.filter(function() {
+			return $(this).text() === `${templateName}`;
+		});
+
+		const currTemplate = match.next('a').attr('href');
 
 		try {
 			currTemplate.match(/(templateId=)(.+)$/)[2];
