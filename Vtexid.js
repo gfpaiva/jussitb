@@ -42,7 +42,7 @@ class VtexId {
 
 	getToken() {
 		return axios
-				.get(`${this.uri}${this.endpoints.getToken}`, {
+				.post(`${this.uri}${this.endpoints.getToken}`, {
 					params: {
 						...this.userInfos.initialCallback,
 						appStart: true,
