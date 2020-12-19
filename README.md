@@ -1,8 +1,8 @@
-# jussitb
+# vtex-d
 
-![npm](https://img.shields.io/npm/dt/jussitb.svg)
+![npm](https://img.shields.io/npm/dt/vtex-d.svg)
 
-[![NPM](https://nodei.co/npm/jussitb.png)](https://nodei.co/npm/jussitb/)
+[![NPM](https://nodei.co/npm/vtex-d.png)](https://nodei.co/npm/vtex-d/)
 
 CLI Utils for:
 
@@ -16,17 +16,17 @@ CLI Utils for:
 
 ```bash
 
-$ npm install -g jussitb
+$ npm install -g vtex-d
 
 ```
 
-## jussitb global usage
+## vtex-d global usage
 
 
 
 ```bash
 
-$ jussitb deploy
+$ vtex-d deploy
 
 ```
 
@@ -36,15 +36,15 @@ Provide your email and account name to login, after wait the upload processes.
 
 
 
-## jussitb.lock.json
+## vtex-d.lock.json
 
-The process will generate a jussitb.lock.json file in root path of your project.
+The process will generate a vtex-d.lock.json file in root path of your project.
 
 This file is used to cache files and prevent upload files with same content, we recomend to not delete or ignore this file.
 
-## jussitb.auth.json
+## vtex-d.auth.json
 
-The process will generate a jussitb.auth.json file in root path of your project.
+The process will generate a vtex-d.auth.json file in root path of your project.
 
 This file is used to cache your auth login cookie, we recomend to ignore this file in .gitignore.
 
@@ -59,7 +59,7 @@ Other utils commands:
 
 ```bash
 
-$ jussitb -h
+$ vtex-d -h
 
 ```
 ___
@@ -68,7 +68,7 @@ ___
 
 ```bash
 
-$ jussitb deploy --account <accountName> --email <email>
+$ vtex-d deploy --account <accountName> --email <email>
 
 ```
 ___
@@ -76,7 +76,7 @@ ___
 
 ```bash
 
-$ jussitb deploy --force
+$ vtex-d deploy --force
 
 ```
 ___
@@ -84,7 +84,7 @@ ___
 
 ```bash
 
-$ jussitb html
+$ vtex-d html
 
 ```
 ___
@@ -92,7 +92,7 @@ ___
 
 ```bash
 
-$ jussitb sub
+$ vtex-d sub
 
 ```
 ___
@@ -100,7 +100,7 @@ ___
 
 ```bash
 
-$ jussitb shelf
+$ vtex-d shelf
 
 ```
 ___
@@ -108,22 +108,22 @@ ___
 
 ```bash
 
-$ jussitb assets
+$ vtex-d assets
 
 ```
 
 
-## jussitb project workflow
+## vtex-d project workflow
 
-Run ``jussitb createProject`` to create a new project folder.
-![Create Project](https://github.com/gfpaiva/jussitb/blob/master/templates/demo/createProject.gif?raw=true)
+Run ``vtex-d createProject`` to create a new project folder.
+![Create Project](https://github.com/gfpaiva/vtex-d/blob/master/templates/demo/createProject.gif?raw=true)
 
 Provide a project name, vtex-account and if you want to sync the vtex registered templates,
 
 ___
 
 After a long winter (installing de dependencies) you will be able to run de project with gulp:
-![Live Reload](https://github.com/gfpaiva/jussitb/blob/master/templates/demo/liveReload.gif?raw=true)
+![Live Reload](https://github.com/gfpaiva/vtex-d/blob/master/templates/demo/liveReload.gif?raw=true)
 
 With gulp we run a reverse proxy server to css and js local files, so you can edit and see the changes with live reload.
 And you can work with: ES6, ES6 Modules, SCSS, *Nitro* controllers and modules.
@@ -132,7 +132,7 @@ We highly recommend to make this project a github (private or public) repository
 ___
 
 After all work done, you can deploy your store:
-![Deploy Project](https://github.com/gfpaiva/jussitb/blob/master/templates/demo/deploy.gif?raw=true)
+![Deploy Project](https://github.com/gfpaiva/vtex-d/blob/master/templates/demo/deploy.gif?raw=true)
 
 With ``npm run deploy`` the project will be compiled and deployed in the specific vtex account.
 

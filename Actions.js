@@ -24,7 +24,7 @@ class Actions {
 		this.account = null;
 		this.email = null;
 		this.localPaths = {
-			lockPath: path.resolve(PROJECTDIR, 'jussitb.lock.json'),
+			lockPath: path.resolve(PROJECTDIR, 'vtex-d.lock.json'),
 		};
 
 		// \/ Just to maintain the scope

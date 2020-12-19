@@ -1,10 +1,10 @@
 {
-  "name": "jussitb",
+  "name": "vtex-d",
   "version": "1.5.1",
   "description": "CLI VTEX utils",
-  "main": "jussitb.js",
+  "main": "vtex-d.js",
   "bin": {
-    "jussitb": "jussitb.js"
+    "vtex-d": "vtex-d.js"
   },
   "author": {
     "name": "Guilherme Paiva",
@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gfpaiva/jussitb.git"
+    "url": "git+https://github.com/gfpaiva/vtex-d.git"
   },
   "bugs": {
-    "url": "https://github.com/gfpaiva/jussitb/issues"
+    "url": "https://github.com/gfpaiva/vtex-d/issues"
   },
-  "homepage": "https://github.com/gfpaiva/jussitb/blob/master/README.md",
+  "homepage": "https://github.com/gfpaiva/vtex-d/blob/master/README.md",
   "keywords": [
-    "jussitb",
+    "vtex-d",
     "jussi",
     "cli",
     "deploy"

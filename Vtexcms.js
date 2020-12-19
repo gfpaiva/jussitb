@@ -52,7 +52,7 @@ class VtexCMS {
 			width: 20,
 		});
 		this.localPaths = {
-			lockPath: path.resolve(PROJECTDIR, 'jussitb.lock.json'),
+			lockPath: path.resolve(PROJECTDIR, 'vtex-d.lock.json'),
 			assetsPath: path.resolve(PROJECTDIR, 'build/files'),
 			defaultAssetsPath: path.resolve(PROJECTDIR, 'build/arquivos'),
 			shelvesPath: path.resolve(PROJECTDIR, 'build/shelf'),
