@@ -61,10 +61,10 @@ typings/
 .sass-cache
 
 #dist
-build/*
-build/arquivos
-build/arquivos/**
-build/arquivos/**/*
+dist/*
+dist/arquivos
+dist/arquivos/**
+dist/arquivos/**/*
 /sass-lint.html
 
 #vscode

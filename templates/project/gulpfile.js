@@ -41,12 +41,12 @@ const paths = {
 	},
 
 	dest         : {
-		default: 'build/arquivos',
-		files  : 'build/files',
+		default: 'buidistld/arquivos',
+		files  : 'dist/files',
 		html   : {
-			templates       : 'build/html',
-			subTemplates    : 'build/html/sub',
-			shelvesTemplates: 'build/shelf'
+			templates       : 'dist/html',
+			subTemplates    : 'dist/html/sub',
+			shelvesTemplates: 'dist/shelf'
 		}
 	}
 };
@@ -199,7 +199,7 @@ const server = () => {
 	};
 
 	bs({
-		files: $.util.env.page ? [] : ['build/**', '!build/**/*.map'],
+		files: $.util.env.page ? [] : ['dist/**', '!dist/**/*.map'],
 		startPath: `${secureUrl ? `http://${accountName}.vtexlocal.com.br${proxyPort !== 80 ? `:${proxyPort}` : ''}/?debugcss=true&debugjs=true` : '/admin/Site/Login.aspx?ReturnUrl=%2f%3fdebugcss%3dtrue%26debugjs%3dtrue'}`,
 		rewriteRules: [
 			{
@@ -249,7 +249,7 @@ const server = () => {
 	if ($.util.env.page) htmlFile = fs.readdirSync(`${__dirname}/src/Pages/${$.util.env.page}`).filter(file => /\.html$/.test(file))[0];
 
 	return $.util.env.page ? bs.create().init({
-		files: ['build/**', '!build/**/*.map'],
+		files: ['dist/**', '!dist/**/*.map'],
 		server: {
 			baseDir: ['build']
 		},

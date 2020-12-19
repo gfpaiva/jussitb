@@ -16,10 +16,10 @@ module.exports = function (gulp, $, _) {
 
 
 	return function html(done) {
-		let pagesDest = [`build/${$.util.env.page}`];
+		let pagesDest = [`dist/${$.util.env.page}`];
 
 		if ($.util.env.page && $.util.env.page.indexOf(',') > 0) {
-			pagesDest = [`build/pages`];
+			pagesDest = [`dist/pages`];
 		}
 
 		if ($.util.env.production) {
