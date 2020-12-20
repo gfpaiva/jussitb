@@ -2,7 +2,7 @@
 	"name": "PROJECTACCOUNTNAME",
 	"accountName": "PROJECTACCOUNTNAME",
 	"version": "v1.0.0",
-	"author": "Jussi Platform",
+	"author": "vtex-d Platform",
 	"private": true,
 	"secureUrl": true,
 	"proxyPort": 3000,
